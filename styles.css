@@ -62,6 +62,7 @@ section[id]{scroll-margin-top:86px}
 .section--navy{background:var(--navy-800);color:var(--powder-soft)}
 .section--mist{background:var(--mist)}
 .section--paper{background:var(--paper)}
+.section--tight{padding-block:clamp(40px,6vw,72px)}
 
 .eyebrow{
   font-family:var(--mono);
@@ -250,7 +251,7 @@ section[id]{scroll-margin-top:86px}
 }
 
 /* Ledger ispod heroa */
-.ledger-band{border-block:1px solid var(--line);background:var(--paper)}
+.ledger-band{border-block:1px solid var(--line);background:#fff}
 .ledger{display:flex;flex-wrap:wrap;gap:14px clamp(34px,6vw,84px);padding-block:26px}
 .ledger__item{display:flex;flex-direction:column;gap:4px}
 .ledger__num{font-family:var(--mono);font-weight:500;font-size:clamp(1.5rem,2.6vw,2rem);line-height:1;color:var(--navy-800);letter-spacing:-.01em}
