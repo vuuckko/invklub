@@ -1,0 +1,514 @@
+/* =========================================================
+   Investicioni klub studenata FON-a
+   Svetao, studentski, fotografski. Archivo Expanded naslovi,
+   Manrope tekst, IBM Plex Mono brojevi.
+   ========================================================= */
+
+:root{
+  --navy-900:#08243b;
+  --navy-800:#0c3350;
+  --navy-700:#123f61;
+  --powder:#a9c4dc;
+  --powder-soft:#c9dcea;
+  --mist:#eaf1f7;
+  --paper:#f5f8fb;
+  --white:#ffffff;
+  --ink:#0b2233;
+  --ink-soft:#48657c;
+  --line:#dce6ef;
+  --accent:#1e77c4;
+  --accent-600:#155f9f;
+  --gain:#159d67;
+  --gain-bright:#43c58c;
+  --gain-soft:#e2f3ec;
+
+  --maxw:1180px;
+  --gutter:clamp(20px,5vw,64px);
+
+  --disp:'Archivo',system-ui,sans-serif;
+  --sans:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+
+  --r-sm:8px; --r-md:14px; --r-lg:22px;
+  --shadow:0 22px 60px -30px rgba(9,40,64,.45);
+  --shadow-soft:0 14px 40px -24px rgba(9,40,64,.3);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+body{
+  margin:0;
+  font-family:var(--sans);
+  color:var(--ink);
+  background:var(--white);
+  font-size:1.0625rem;
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:4px}
+::selection{background:var(--powder);color:var(--navy-900)}
+section[id]{scroll-margin-top:86px}
+
+/* ---------- Layout ---------- */
+.wrap{max-width:var(--maxw);margin-inline:auto;padding-inline:var(--gutter)}
+.section{padding-block:clamp(64px,9vw,120px)}
+.section--navy{background:var(--navy-800);color:var(--powder-soft)}
+.section--mist{background:var(--mist)}
+.section--paper{background:var(--paper)}
+
+.eyebrow{
+  font-family:var(--mono);
+  font-size:.72rem;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin:0 0 18px;
+}
+.section--navy .eyebrow{color:var(--powder)}
+
+.h-lead{
+  font-family:var(--disp);
+  font-weight:700;
+  font-stretch:116%;
+  font-variation-settings:'wdth' 116;
+  line-height:1.03;
+  letter-spacing:-.015em;
+  font-size:clamp(1.95rem,4.2vw,3.2rem);
+  margin:0 0 .5em;
+  color:var(--ink);
+}
+.h-lead em{font-style:normal;color:var(--accent)}
+.section--navy .h-lead{color:#fff}
+.section--navy .h-lead em{color:var(--powder)}
+
+.lead-text{max-width:56ch;color:var(--ink-soft);font-size:1.115rem}
+.section--navy .lead-text{color:var(--powder-soft)}
+
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:48px;flex-wrap:wrap}
+.sec-head .lead-text{margin:0}
+
+/* ---------- Buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;gap:.6em;
+  padding:.9em 1.5em;border-radius:999px;
+  font-weight:700;font-size:.96rem;letter-spacing:.01em;
+  border:1.5px solid transparent;
+  transition:transform .18s ease,background .18s ease,box-shadow .18s ease,color .18s ease,border-color .18s ease;
+}
+.btn:hover{transform:translateY(-2px)}
+.btn svg{width:18px;height:18px;flex:none}
+.btn--primary{background:var(--accent);color:#fff;box-shadow:0 12px 26px -12px rgba(30,119,196,.8)}
+.btn--primary:hover{background:var(--accent-600)}
+.btn--ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn--ghost:hover{border-color:var(--accent);color:var(--accent)}
+.btn--on-navy{background:var(--white);color:var(--navy-800)}
+.btn--on-navy:hover{background:var(--powder-soft)}
+.btn--big{padding:1.05em 1.9em;font-size:1.05rem}
+
+/* ---------- Brand mark ---------- */
+.ik-mark{width:40px;height:40px;flex:none;color:var(--navy-700)}
+.ik-mark .arc{stroke:var(--powder);fill:none;stroke-linecap:round}
+.ik-mark .bar{fill:currentColor}
+.ik-mark--onnavy{color:#fff}
+.ik-mark--onnavy .arc{stroke:var(--powder)}
+
+/* =========================================================
+   Ticker
+   ========================================================= */
+.ticker{
+  background:var(--navy-900);color:var(--powder-soft);
+  overflow:hidden;white-space:nowrap;
+  font-family:var(--mono);font-size:.8rem;letter-spacing:.04em;
+}
+.ticker__track{display:inline-flex;align-items:center;animation:tape 34s linear infinite}
+.ticker__group{display:inline-flex;align-items:center}
+.ticker__item{display:inline-flex;align-items:center;gap:.5em;padding:10px 26px;position:relative}
+.ticker__item::after{content:"";position:absolute;right:0;top:50%;transform:translateY(-50%);width:1px;height:12px;background:rgba(169,196,220,.22)}
+.ticker__sym{color:#fff;font-weight:600}
+.ticker__pct{color:var(--gain-bright)}
+.ticker__label{color:var(--powder);opacity:.75}
+@keyframes tape{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.ticker:hover .ticker__track{animation-play-state:paused}
+@media (prefers-reduced-motion:reduce){.ticker__track{animation:none}}
+
+/* =========================================================
+   Header
+   ========================================================= */
+.site-header{
+  position:sticky;top:0;z-index:50;
+  background:rgba(255,255,255,.88);
+  backdrop-filter:saturate(140%) blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:24px;height:72px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand__name{font-family:var(--disp);font-stretch:112%;font-variation-settings:'wdth' 112;font-weight:700;font-size:1.06rem;line-height:1;color:var(--navy-800);letter-spacing:-.01em}
+.brand__sub{display:block;font-family:var(--mono);font-size:.56rem;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-soft);margin-top:4px;font-weight:400}
+.nav__links{display:flex;align-items:center;gap:28px;list-style:none;margin:0;padding:0}
+.nav__links a{font-size:.94rem;font-weight:600;color:var(--ink);position:relative;padding:6px 0}
+.nav__links a::after{content:"";position:absolute;left:0;bottom:0;width:0;height:2px;background:var(--accent);transition:width .22s ease}
+.nav__links a:hover::after,.nav__links a:focus-visible::after{width:100%}
+.nav__cta{display:flex;align-items:center;gap:14px}
+.nav__toggle{display:none;background:none;border:0;padding:8px;color:var(--navy-800)}
+.nav__toggle svg{width:26px;height:26px}
+
+@media (max-width:920px){
+  .nav__links{
+    position:fixed;inset:72px 0 auto 0;
+    flex-direction:column;align-items:flex-start;gap:0;
+    background:var(--white);border-bottom:1px solid var(--line);
+    padding:8px var(--gutter) 24px;
+    transform:translateY(-140%);transition:transform .3s ease;
+    box-shadow:var(--shadow-soft);
+  }
+  .nav__links.is-open{transform:translateY(0)}
+  .nav__links li{width:100%;border-bottom:1px solid var(--line)}
+  .nav__links a{display:block;padding:16px 0;width:100%}
+  .nav__toggle{display:block}
+  .nav__cta .btn{display:none}
+}
+
+/* =========================================================
+   Hero — svetao, sa pravim fotografijama
+   ========================================================= */
+.hero{background:var(--white);position:relative;overflow:hidden}
+.hero .blob{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0}
+.blob--1{width:440px;height:440px;background:rgba(169,196,220,.5);top:-140px;right:6%;animation:drift 16s ease-in-out infinite alternate}
+.blob--2{width:360px;height:360px;background:rgba(30,119,196,.14);bottom:-160px;left:-90px;animation:drift 20s ease-in-out infinite alternate-reverse}
+@keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(44px,28px) scale(1.12)}}
+
+.hero__inner{
+  position:relative;z-index:1;
+  display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(36px,5vw,72px);align-items:center;
+  padding-block:clamp(52px,7vw,96px);
+}
+.hero h1{
+  font-family:var(--disp);font-weight:750;
+  font-stretch:118%;font-variation-settings:'wdth' 118;
+  font-size:clamp(2.5rem,5.4vw,4.4rem);line-height:1.0;letter-spacing:-.02em;
+  margin:0 0 24px;color:var(--ink);
+}
+.hero h1 em{
+  font-style:normal;color:var(--accent);
+  background:linear-gradient(transparent 60%,rgba(169,196,220,.55) 0);
+  background-size:0% 100%;background-repeat:no-repeat;
+  animation:hl .9s ease .5s forwards;
+}
+@keyframes hl{to{background-size:100% 100%}}
+.hero__sub{max-width:50ch;color:var(--ink-soft);font-size:1.15rem;margin:0 0 32px}
+.hero__actions{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:28px}
+.hero__tags{font-family:var(--mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin:0}
+.hero__tags b{color:var(--navy-800);font-weight:500}
+
+/* foto + plutajuci elementi */
+.hero__media{position:relative;margin-bottom:14px}
+.ph-main{border-radius:var(--r-lg);box-shadow:var(--shadow);aspect-ratio:4/3;object-fit:cover;width:100%}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes draw{to{stroke-dashoffset:0}}
+.float-card{
+  position:absolute;left:-26px;top:26px;z-index:2;
+  background:#fff;border:1px solid var(--line);border-radius:var(--r-md);
+  box-shadow:var(--shadow-soft);padding:14px 18px;
+  display:flex;flex-direction:column;gap:6px;
+  animation:float 6s ease-in-out infinite;
+}
+.float-card__k{font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft)}
+.float-card svg{width:132px;height:auto}
+.spark{fill:none;stroke:var(--gain);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:280;stroke-dashoffset:280;animation:draw 1.6s ease .4s forwards}
+.float-card b{font-family:var(--mono);font-weight:600;color:var(--gain);font-size:1.3rem;letter-spacing:-.02em}
+.chip{
+  position:absolute;z-index:2;
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.02em;
+  background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 14px;
+  box-shadow:var(--shadow-soft);color:var(--navy-800);white-space:nowrap;
+}
+.chip .g{color:var(--gain);font-weight:600}
+.chip--1{top:-14px;right:5%;animation:float 5s ease-in-out .6s infinite}
+.chip--2{bottom:20%;left:-24px;animation:float 7s ease-in-out .2s infinite}
+.ph-badge{
+  position:absolute;right:-12px;bottom:-20px;z-index:2;
+  background:var(--accent);color:#fff;
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+  padding:11px 16px;border-radius:10px;box-shadow:0 14px 30px -14px rgba(30,119,196,.7);
+  transform:rotate(3deg);line-height:1.5;
+}
+.ph-badge b{display:block;font-size:.95rem;letter-spacing:.02em}
+
+@media (max-width:860px){
+  .hero__inner{grid-template-columns:1fr}
+  .hero__media{order:-1;max-width:520px}
+  .float-card{left:-8px;top:14px;padding:11px 14px}
+  .chip--2{display:none}
+  .ph-badge{right:-6px;bottom:-14px}
+}
+@media (prefers-reduced-motion:reduce){
+  .hero .blob,.float-card,.chip{animation:none}
+  .spark{animation:none;stroke-dashoffset:0}
+  .hero h1 em{animation:none;background-size:100% 100%}
+}
+
+/* Ledger ispod heroa */
+.ledger-band{border-block:1px solid var(--line);background:var(--paper)}
+.ledger{display:flex;flex-wrap:wrap;gap:14px clamp(34px,6vw,84px);padding-block:26px}
+.ledger__item{display:flex;flex-direction:column;gap:4px}
+.ledger__num{font-family:var(--mono);font-weight:500;font-size:clamp(1.5rem,2.6vw,2rem);line-height:1;color:var(--navy-800);letter-spacing:-.01em}
+.ledger__num .u{color:var(--accent)}
+.ledger__item--gain .ledger__num{color:var(--gain)}
+.ledger__item--gain .ledger__num .u{color:inherit}
+.ledger__label{font-size:.8rem;color:var(--ink-soft)}
+
+/* =========================================================
+   O nama
+   ========================================================= */
+.about__grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(32px,5vw,72px);align-items:center}
+.about__body p{color:var(--ink-soft);font-size:1.1rem}
+.pillars{list-style:none;margin:34px 0 0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:0 clamp(24px,3vw,40px)}
+.pillar{border-top:1px solid var(--line);padding:18px 0 22px}
+.pillar strong{display:block;font-family:var(--disp);font-stretch:110%;font-variation-settings:'wdth' 110;font-weight:700;font-size:1.02rem;color:var(--ink);margin-bottom:4px}
+.pillar span{font-size:.92rem;color:var(--ink-soft);line-height:1.55}
+.about__media{position:relative}
+.about__media img{border-radius:var(--r-lg);box-shadow:var(--shadow);aspect-ratio:4/5;object-fit:cover;width:100%}
+.about__badge{
+  position:absolute;left:-18px;bottom:24px;background:#fff;border-radius:var(--r-md);
+  box-shadow:var(--shadow-soft);padding:16px 20px;border:1px solid var(--line);max-width:236px;
+}
+.about__badge b{font-family:var(--disp);font-stretch:110%;font-variation-settings:'wdth' 110;font-size:1rem;color:var(--navy-800);display:block;line-height:1.25}
+.about__badge span{font-size:.82rem;color:var(--ink-soft)}
+@media (max-width:820px){
+  .about__grid{grid-template-columns:1fr}
+  .about__media{max-width:440px}
+}
+@media (max-width:460px){.pillars{grid-template-columns:1fr}}
+
+/* =========================================================
+   Projekti — urednička lista
+   ========================================================= */
+.projects{display:grid;grid-template-columns:.9fr 1.1fr;gap:clamp(32px,6vw,88px);align-items:start}
+.projects__intro{position:sticky;top:104px}
+.projects__intro .lead-text{margin-bottom:26px}
+.projects__list{border-bottom:1px solid var(--line)}
+.prow{
+  display:grid;grid-template-columns:1fr auto;gap:20px;align-items:start;
+  border-top:1px solid var(--line);padding:24px 0;
+  transition:padding-left .22s ease;
+}
+.prow:hover{padding-left:16px}
+.prow h3{
+  font-family:var(--disp);font-stretch:112%;font-variation-settings:'wdth' 112;
+  font-weight:700;font-size:1.3rem;letter-spacing:-.01em;margin:0 0 6px;color:var(--ink);
+  transition:color .18s ease;
+}
+.prow:hover h3{color:var(--accent)}
+.prow p{margin:0;color:var(--ink-soft);font-size:.95rem;max-width:52ch}
+.prow__tag{
+  font-family:var(--mono);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-soft);border:1px solid var(--line);border-radius:999px;padding:5px 12px;margin-top:4px;
+  transition:color .18s ease,border-color .18s ease;white-space:nowrap;
+}
+.prow:hover .prow__tag{color:var(--accent);border-color:var(--powder)}
+@media (max-width:860px){
+  .projects{grid-template-columns:1fr}
+  .projects__intro{position:static}
+}
+@media (max-width:520px){
+  .prow{grid-template-columns:1fr}
+  .prow__tag{justify-self:start;margin-top:0}
+}
+
+/* =========================================================
+   Takmičenje — jedina tamna sekcija
+   ========================================================= */
+.tak{display:grid;grid-template-columns:.9fr 1.1fr;gap:clamp(36px,6vw,88px);align-items:start}
+.tak__k{font-family:var(--mono);font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--powder)}
+.tak__big{
+  font-family:var(--mono);font-weight:500;
+  font-size:clamp(3.4rem,8vw,6.2rem);line-height:.95;letter-spacing:-.04em;
+  color:var(--gain-bright);margin:16px 0 18px;
+}
+.tak__team{color:var(--powder-soft);font-size:1.02rem;max-width:38ch;margin:0 0 28px}
+.tak__team b{color:#fff}
+.tak__disc{font-size:.8rem;color:var(--powder);opacity:.65;margin:44px 0 0;max-width:62ch}
+
+.tak__table{border-top:2px solid rgba(169,196,220,.5)}
+.trow{
+  display:grid;grid-template-columns:76px 1fr auto;gap:18px;align-items:baseline;
+  padding:20px 4px;border-bottom:1px solid rgba(169,196,220,.16);
+  transition:background .18s ease,padding-left .18s ease;
+}
+.trow:hover{background:rgba(169,196,220,.06);padding-left:14px}
+.trow--head{padding:14px 4px;border-bottom:1px solid rgba(169,196,220,.3)}
+.trow--head span{font-family:var(--mono);font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--powder)}
+.trow--head:hover{background:none;padding-left:4px}
+.trow__sym{font-family:var(--mono);font-weight:600;font-size:1rem;color:var(--powder)}
+.trow__name{color:#fff;font-weight:700;font-size:1.12rem}
+.trow__name small{display:block;font-family:var(--mono);font-weight:400;font-size:.68rem;letter-spacing:.04em;color:var(--powder);opacity:.75;margin-top:4px}
+.trow__pct{font-family:var(--mono);font-weight:600;font-size:1.35rem;color:var(--gain-bright);letter-spacing:-.02em;text-align:right;white-space:nowrap}
+.ra{text-align:right}
+
+@media (max-width:860px){.tak{grid-template-columns:1fr}}
+@media (max-width:460px){
+  .trow{grid-template-columns:56px 1fr auto;gap:12px}
+  .trow__pct{font-size:1.1rem}
+}
+
+/* =========================================================
+   Radionice — bento mozaik
+   ========================================================= */
+.events{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:212px;gap:14px}
+.wshop{position:relative;border-radius:var(--r-lg);overflow:hidden;isolation:isolate;background:var(--navy-800)}
+.wshop img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .6s ease}
+.wshop::after{content:"";position:absolute;inset:0;z-index:1;
+  background:linear-gradient(180deg,rgba(8,36,59,0) 32%,rgba(8,36,59,.5) 62%,rgba(6,26,44,.93))}
+.wshop:hover img{transform:scale(1.05)}
+.wshop__body{position:absolute;inset:auto 0 0 0;z-index:2;padding:22px 22px 20px;color:#fff}
+.wshop__place{font-family:var(--mono);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--powder)}
+.wshop__body h3{font-family:var(--disp);font-stretch:112%;font-variation-settings:'wdth' 112;font-weight:700;font-size:1.18rem;letter-spacing:-.01em;margin:9px 0 0;color:#fff}
+.wshop__body p{margin:8px 0 0;font-size:.9rem;line-height:1.5;color:var(--powder-soft);max-width:44ch}
+.wshop--feature{grid-column:span 2;grid-row:span 2}
+.wshop--feature .wshop__body{padding:30px}
+.wshop--feature .wshop__body h3{font-size:1.8rem;margin-top:11px}
+.wshop--feature .wshop__body p{font-size:1rem}
+.wshop--wide{grid-column:span 2}
+.wshop--sm .wshop__body p{display:none}
+.wshop:focus-within img{transform:scale(1.05)}
+
+@media (max-width:900px){
+  .events{grid-template-columns:repeat(2,1fr);grid-auto-rows:186px}
+}
+@media (max-width:600px){
+  .events{grid-template-columns:1fr;grid-auto-rows:230px}
+  .wshop--feature,.wshop--wide{grid-column:span 1}
+  .wshop--feature{grid-row:span 1}
+  .wshop--feature .wshop__body{padding:22px}
+  .wshop--feature .wshop__body h3{font-size:1.45rem}
+  .wshop--sm .wshop__body p{display:block}
+}
+
+/* =========================================================
+   Galerija — horizontalni filmstrip
+   ========================================================= */
+.strip-section{overflow:hidden}
+.strip{
+  display:flex;gap:16px;overflow-x:auto;
+  scroll-snap-type:x mandatory;
+  padding-bottom:16px;
+  -webkit-overflow-scrolling:touch;
+}
+.strip::-webkit-scrollbar{height:8px}
+.strip::-webkit-scrollbar-track{background:var(--mist);border-radius:99px}
+.strip::-webkit-scrollbar-thumb{background:var(--powder);border-radius:99px}
+.strip figure{
+  margin:0;flex:0 0 auto;scroll-snap-align:start;
+  display:flex;flex-direction:column;gap:10px;
+}
+.strip img{height:clamp(240px,34vw,340px);width:auto;border-radius:var(--r-md);object-fit:cover}
+.strip figcaption{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
+.strip-hint{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);opacity:.7;margin:10px 0 0}
+
+/* =========================================================
+   Partneri — logo traka
+   ========================================================= */
+.pstrip{display:grid;grid-template-columns:repeat(3,1fr);border-block:1px solid var(--line)}
+.pcell{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:42px 28px;text-align:center}
+.pcell+.pcell{border-left:1px solid var(--line)}
+.pcell__logo{height:56px;display:flex;align-items:center;justify-content:center}
+.pcell__logo img{max-height:56px;max-width:200px;width:auto;object-fit:contain}
+.pcell__logo img.logo--tile{border-radius:12px;max-height:52px}
+.pcell__role{font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}
+@media (max-width:720px){
+  .pstrip{grid-template-columns:1fr}
+  .pcell+.pcell{border-left:0;border-top:1px solid var(--line)}
+}
+
+/* =========================================================
+   Tim — fotografija + roster
+   ========================================================= */
+.team{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(30px,5vw,64px);align-items:center}
+.team__photo{border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow)}
+.team__photo img{width:100%;height:100%;object-fit:cover;aspect-ratio:4/3}
+.team__side p{color:var(--ink-soft);font-size:1.06rem;margin:0 0 26px}
+.roster{border-bottom:1px solid var(--line)}
+.rrow{
+  display:grid;grid-template-columns:1fr auto;gap:16px;align-items:baseline;
+  border-top:1px solid var(--line);padding:16px 0;
+  transition:padding-left .2s ease;
+}
+.rrow:hover{padding-left:12px}
+.rrow b{font-family:var(--disp);font-stretch:110%;font-variation-settings:'wdth' 110;font-weight:700;font-size:1.08rem;color:var(--ink)}
+.rrow span{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
+.rrow--cta b{color:var(--accent)}
+.rrow--cta span{color:var(--accent)}
+@media (max-width:820px){.team{grid-template-columns:1fr}}
+
+/* =========================================================
+   Učlani se — panel + moderna forma
+   ========================================================= */
+.join-grid{display:grid;grid-template-columns:.95fr 1.05fr;gap:clamp(24px,4vw,48px);align-items:stretch}
+.join-panel{
+  background:linear-gradient(160deg,var(--navy-700),var(--navy-900));
+  border-radius:var(--r-lg);padding:clamp(28px,4vw,44px);
+  color:var(--powder-soft);display:flex;flex-direction:column;
+}
+.join-panel .eyebrow{color:var(--powder)}
+.join-panel h2{
+  font-family:var(--disp);font-stretch:116%;font-variation-settings:'wdth' 116;
+  font-weight:700;font-size:clamp(1.8rem,3.4vw,2.6rem);line-height:1.05;letter-spacing:-.015em;
+  color:#fff;margin:0 0 14px;
+}
+.join-panel>p{margin:0 0 26px;color:var(--powder-soft);font-size:1.05rem}
+.join-panel .btn{align-self:flex-start}
+.join-panel__note{margin-top:auto;padding-top:30px;font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--powder);opacity:.85;line-height:2}
+
+.cform{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:clamp(24px,4vw,38px);box-shadow:var(--shadow-soft)}
+.cform h3{margin:0 0 4px;font-family:var(--disp);font-stretch:112%;font-variation-settings:'wdth' 112;font-weight:700;font-size:1.4rem;color:var(--ink)}
+.cform__note{color:var(--ink-soft);font-size:.9rem;margin:0 0 22px}
+.ffield{position:relative;margin-bottom:14px}
+.ffield input,.ffield textarea{
+  width:100%;padding:24px 16px 10px;border:1.5px solid var(--line);border-radius:var(--r-md);
+  background:var(--paper);font:inherit;font-size:.98rem;color:var(--ink);
+  transition:border-color .15s ease,background .15s ease;
+}
+.ffield textarea{min-height:112px;resize:vertical}
+.ffield input:focus,.ffield textarea:focus{outline:none;border-color:var(--accent);background:#fff}
+.ffield label{
+  position:absolute;left:17px;top:17px;font-size:.95rem;color:var(--ink-soft);pointer-events:none;
+  transition:top .15s ease,font-size .15s ease,color .15s ease;
+}
+.ffield input:focus~label,.ffield textarea:focus~label,
+.ffield input:not(:placeholder-shown)~label,.ffield textarea:not(:placeholder-shown)~label{
+  top:8px;font-size:.62rem;font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--accent);
+}
+.cform__submit{width:100%;justify-content:center;margin-top:6px}
+.form__ok{background:var(--gain-soft);color:var(--gain);border-radius:var(--r-sm);padding:14px 16px;font-size:.92rem;font-weight:500;margin-top:14px}
+.form__ok[hidden]{display:none}
+@media (max-width:820px){.join-grid{grid-template-columns:1fr}}
+
+/* =========================================================
+   Footer
+   ========================================================= */
+.footer{background:var(--navy-900);color:var(--powder-soft);padding-block:64px 32px}
+.footer__grid{display:grid;grid-template-columns:1.5fr 1fr 1.2fr;gap:40px;margin-bottom:48px}
+.footer h4{font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--powder);margin:0 0 18px;font-weight:500}
+.footer ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.footer a{color:var(--powder-soft);font-size:.95rem}
+.footer a:hover{color:#fff}
+.footer__brand p{max-width:34ch;font-size:.92rem;color:var(--powder-soft);opacity:.85}
+.footer__brand .brand__name{color:#fff}
+.footer__brand .brand__sub{color:var(--powder)}
+.footer__bottom{border-top:1px solid rgba(169,196,220,.14);padding-top:24px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:.82rem;color:var(--powder);opacity:.8}
+.footer__bottom .disc{max-width:60ch}
+@media (max-width:820px){.footer__grid{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){.footer__grid{grid-template-columns:1fr}}
+
+/* ---------- Reveal ---------- */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+.reveal.is-visible{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
