@@ -25,11 +25,11 @@
       <circle class="arc" cx="50" cy="50" r="22" stroke-dasharray="92 46" transform="rotate(230 50 50)"/>
     </g>
     <g class="bar">
-      <rect x="33"   y="52" width="5" height="12" rx="1.4"/>
-      <rect x="40.5" y="46" width="5" height="18" rx="1.4"/>
-      <rect x="48"   y="40" width="5" height="24" rx="1.4"/>
-      <rect x="55.5" y="34" width="5" height="30" rx="1.4"/>
-      <rect x="63"   y="38" width="5" height="26" rx="1.4"/>
+      <rect x="33"   y="54" width="5" height="10" rx="1.4"/>
+      <rect x="40.5" y="49" width="5" height="15" rx="1.4"/>
+      <rect x="48"   y="43" width="5" height="21" rx="1.4"/>
+      <rect x="55.5" y="37" width="5" height="27" rx="1.4"/>
+      <rect x="63"   y="31" width="5" height="33" rx="1.4"/>
     </g>
   </symbol>
 </svg>
@@ -64,8 +64,9 @@
     <nav aria-label="Glavna navigacija">
       <ul class="nav__links" id="navLinks">
         <li><a href="#o-nama">O nama</a></li>
-        <li><a href="#projekti">Projekti</a></li>
+        <li><a href="#projekti">Čime se bavimo</a></li>
         <li><a href="#takmicenje">Takmičenje</a></li>
+        <li><a href="#aktuelno">Aktuelno</a></li>
         <li><a href="#radionice">Radionice</a></li>
         <li><a href="#tim">Tim</a></li>
         <li><a href="#kontakt">Kontakt</a></li>
@@ -84,31 +85,32 @@
 
 <!-- Hero -->
 <section class="hero">
-  <div class="blob blob--1" aria-hidden="true"></div>
-  <div class="blob blob--2" aria-hidden="true"></div>
-  <div class="wrap hero__inner">
-    <div class="hero__copy">
-      <p class="eyebrow">Studentska organizacija na FON-u</p>
-      <h1>Od prve radionice do <em>milionskog portfolija.</em></h1>
-      <p class="hero__sub">Pružamo praktična znanja iz finansija, berzanskog poslovanja i bankarstva. Širimo finansijsku pismenost kroz radionice, takmičenja, posete institucijama i mentorstvo stručnjaka.</p>
-      <div class="hero__actions">
-        <a class="btn btn--primary" href="#uclani-se">Učlani se</a>
-        <a class="btn btn--ghost" href="#takmicenje">Pogledaj rezultate &rarr;</a>
-      </div>
-      <p class="hero__tags"><b>Bez predznanja</b> / <b>Mentorstvo iz industrije</b> / <b>Realne analize</b></p>
-    </div>
+  <div class="hero__bg" aria-hidden="true">
+    <div class="slide is-active"><img src="erste2.jpg" alt=""></div>
+    <div class="slide"><img src="erste%203.jpg" alt="" loading="lazy"></div>
+    <div class="slide"><img src="erste7.jpg" alt="" loading="lazy"></div>
+    <div class="slide"><img src="nova%20slika%204.jpg" alt="" loading="lazy"></div>
+    <div class="slide"><img src="111.jpg" alt="" loading="lazy"></div>
+    <div class="hero__scrim"></div>
+  </div>
 
-    <div class="hero__media">
-      <img class="ph-main" src="1768520312953.jpg" alt="Prezentacija Investicionog kluba na Fakultetu organizacionih nauka">
-      <div class="float-card" aria-hidden="true">
-        <span class="float-card__k">Sezona 2025/26</span>
-        <svg viewBox="0 0 132 48"><polyline class="spark" points="2,42 18,35 34,38 50,26 66,30 82,18 98,21 114,10 130,5"/></svg>
-        <b>+104,5%</b>
-      </div>
-      <span class="chip chip--1">BE <span class="g">+104,5%</span></span>
-      <span class="chip chip--2">LRCX <span class="g">+58,3%</span></span>
-      <div class="ph-badge">Prva generacija<b>2025/26</b></div>
+  <div class="wrap hero__center">
+    <p class="eyebrow">Studentska organizacija na FON-u</p>
+    <h1>Praktične finansije za <em>studente</em>.</h1>
+    <p class="hero__sub">Pružamo praktična znanja iz finansija, berzanskog poslovanja i bankarstva. Širimo finansijsku pismenost kroz radionice, takmičenja, posete institucijama i mentorstvo stručnjaka.</p>
+    <div class="hero__actions">
+      <a class="btn btn--on-navy" href="#uclani-se">Učlani se</a>
+      <a class="btn btn--ghost-navy" href="#takmicenje">Pogledaj rezultate &rarr;</a>
     </div>
+    <p class="hero__tags"><b>Bez predznanja</b> / <b>Mentorstvo iz industrije</b> / <b>Realne analize</b></p>
+  </div>
+
+  <div class="hero__dots" aria-label="Izbor slajda pozadine">
+    <button type="button" class="is-active" aria-label="Slajd 1"></button>
+    <button type="button" aria-label="Slajd 2"></button>
+    <button type="button" aria-label="Slajd 3"></button>
+    <button type="button" aria-label="Slajd 4"></button>
+    <button type="button" aria-label="Slajd 5"></button>
   </div>
 </section>
 
@@ -116,18 +118,19 @@
 <div class="ledger-band">
   <div class="wrap ledger" aria-label="Klub u brojevima">
     <div class="ledger__item"><span class="ledger__num" data-count="2025" data-plain="1">2025</span><span class="ledger__label">Godina osnivanja</span></div>
-    <div class="ledger__item"><span class="ledger__num"><span data-count="14">0</span><span class="u">+</span></span><span class="ledger__label">Aktivnih članova</span></div>
+    <div class="ledger__item"><span class="ledger__num"><span data-count="50">0</span><span class="u">+</span></span><span class="ledger__label">Aktivnih članova</span></div>
     <div class="ledger__item"><span class="ledger__num" data-count="3">0</span><span class="ledger__label">Partnerske institucije</span></div>
     <div class="ledger__item ledger__item--gain"><span class="ledger__num"><span class="u">+</span><span data-count="104" data-suffix=",5%">0</span></span><span class="ledger__label">Najbolji prinos u sezoni</span></div>
   </div>
 </div>
 
 <!-- O nama -->
-<section class="section" id="o-nama">
+<section class="section section--glyph" id="o-nama">
+  <span class="glyph glyph--tr" aria-hidden="true">%</span>
   <div class="wrap about__grid">
     <div class="about__body reveal">
       <p class="eyebrow">O nama</p>
-      <h2 class="h-lead">Finansijska pismenost je <em>veština</em>, ne privilegija.</h2>
+      <h2 class="h-lead">Berza, bankarstvo i lične finansije, <em>iz prve ruke</em>.</h2>
       <p>Investicioni klub studenata FON-a je studentska organizacija na Fakultetu organizacionih nauka koja studentima pruža praktična znanja iz finansija, berzanskog poslovanja i bankarstva i doprinosi širenju finansijske pismenosti.</p>
       <p>Učimo kroz rad: radionice, takmičenja, posete finansijskim institucijama i mentorstvo stručnjaka iz industrije, profesora i saradnika sa univerziteta.</p>
       <ul class="pillars">
@@ -138,10 +141,10 @@
       </ul>
     </div>
     <div class="about__media reveal">
-      <img src="ekof%20radionica.jpeg" alt="Tim Investicionog kluba sa nagradom na simulaciji berze" loading="lazy">
+      <img src="nova%20slika%206.jpg" alt="Osnivači predstavljaju ciljeve kluba na Fakultetu organizacionih nauka" loading="lazy">
       <div class="about__badge">
-        <b>Simulacija berze, 3. mesto</b>
-        <span>ŠEFA, Link to the future</span>
+        <b>50+ aktivnih članova</b>
+        <span>Otvoreni za sve fakultete i sve nivoe znanja</span>
       </div>
     </div>
   </div>
@@ -151,8 +154,8 @@
 <section class="section section--paper" id="projekti">
   <div class="wrap projects">
     <div class="projects__intro reveal">
-      <p class="eyebrow">Šta radimo</p>
-      <h2 class="h-lead">Projekti i aktivnosti</h2>
+      <p class="eyebrow">Program</p>
+      <h2 class="h-lead">Čime se bavimo</h2>
       <p class="lead-text">Program koji spaja teoriju sa realnim tržištem i otvoren je za studente bez ikakvog predznanja.</p>
       <a class="btn btn--primary" href="#uclani-se">Pridruži se programu</a>
     </div>
@@ -235,13 +238,75 @@
   </div>
 </section>
 
+<!-- Aktuelno: projekti sa statusom -->
+<section class="section section--paper section--glyph" id="aktuelno">
+  <span class="glyph glyph--br" aria-hidden="true">Δ</span>
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <p class="eyebrow">Projekti i radionice</p>
+        <h2 class="h-lead">Šta je sledeće</h2>
+      </div>
+      <p class="lead-text">Aktuelni i završeni projekti kluba. Klikni na završen projekat za detalje, rezultate i fotografije.</p>
+    </div>
+
+    <div class="proj-grid">
+      <div class="proj proj--upcoming reveal">
+        <div class="proj__img proj__img--soon">
+          <span class="proj__pill proj__pill--soon">Uskoro</span>
+          <span class="proj__soon">Coming soon</span>
+          <span class="soon-count" data-deadline="2026-10-01T18:00:00">Uskoro</span>
+        </div>
+        <div class="proj__body">
+          <h3>Uvodni projekat</h3>
+          <p>Prvi, uvodni projekat kluba: upoznavanje sa radom, osnove investiranja i plan za sezonu. Održava se na FON-u.</p>
+          <div class="proj__meta">
+            <span class="proj__meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>FON, Beograd</span>
+            <span class="proj__meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 1.8"/></svg>1. oktobar 2026.</span>
+          </div>
+        </div>
+      </div>
+      <a class="proj reveal" href="projekat-portfolio-takmicenje.html">
+        <div class="proj__img">
+          <span class="proj__pill proj__pill--done">Završeno</span>
+          <img src="1773767820444.jpg" alt="Vizual Portfolio menadžment takmičenja" loading="lazy">
+        </div>
+        <div class="proj__body">
+          <h3>Portfolio takmičenje 2025/26</h3>
+          <p>Prva sezona: četiri pozicije u plusu, najbolja +104,5%. Tim 1 osvojio treće mesto.</p>
+          <div class="proj__meta">
+            <span class="proj__meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>FON, Beograd</span>
+            <span class="proj__meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 1.8"/></svg>Sezona 2025/26</span>
+          </div>
+          <span class="proj__link">Detalji projekta &rarr;</span>
+        </div>
+      </a>
+      <a class="proj reveal" href="projekat-simulacija-berze.html">
+        <div class="proj__img">
+          <span class="proj__pill proj__pill--done">Završeno</span>
+          <img src="ekof%20radionica.jpeg" alt="Ekipa kluba sa nagradom na simulaciji berze" loading="lazy">
+        </div>
+        <div class="proj__body">
+          <h3>Simulacija berze</h3>
+          <p>Takmičenje u simuliranom trgovanju na Ekonomskom fakultetu. Ekipa kluba osvojila treće mesto.</p>
+          <div class="proj__meta">
+            <span class="proj__meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Ekonomski fakultet</span>
+            <span class="proj__meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 1.8"/></svg>2026</span>
+          </div>
+          <span class="proj__link">Detalji projekta &rarr;</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
 <!-- Radionice i događaji -->
 <section class="section" id="radionice">
   <div class="wrap">
     <div class="sec-head reveal">
       <div>
         <p class="eyebrow">Radionice i događaji</p>
-        <h2 class="h-lead">Učimo na terenu, ne sa slajda.</h2>
+        <h2 class="h-lead">Od amfiteatra FON-a do <em>Narodne banke</em>.</h2>
       </div>
       <p class="lead-text">Predavanja u bankama, simulacije berze i gostujući stručnjaci. Evo šta smo radili u prvoj godini.</p>
     </div>
@@ -259,16 +324,24 @@
         <div class="wshop__body"><span class="wshop__place">Investopedia</span><h3>Simulator trgovanja</h3><p>Kupovina i prodaja akcija u realnom simulatoru.</p></div>
       </article>
       <article class="wshop wshop--wide reveal">
-        <img src="1775080761771.jpg" alt="Radionica ličnih finansija u Erste Bank" loading="lazy">
+        <img src="erste2.jpg" alt="Radionica ličnih finansija u Erste Bank" loading="lazy">
         <div class="wshop__body"><span class="wshop__place">Erste Bank</span><h3>Lične finansije i budžetiranje</h3><p>Planiranje prihoda i rashoda, štednja i finansijski ciljevi kroz alat #ErsteZnali.</p></div>
       </article>
       <article class="wshop wshop--wide reveal">
         <img src="1778791575284.jpg" alt="Predavanje o analizi investicija u akcije na FON-u" loading="lazy">
         <div class="wshop__body"><span class="wshop__place">Banca Intesa, FON</span><h3>Analiza investicija u akcije</h3><p>Tehnička i fundamentalna analiza, čitanje grafikona, indikatora i trendova.</p></div>
       </article>
+      <article class="wshop wshop--wide wshop--arc reveal">
+        <img src="vladimirdjukanovic2.jpg" alt="Radionica o američkoj berzi sa Vladimirom Đukanovićem na ARC-u" loading="lazy">
+        <div class="wshop__body"><span class="wshop__place">ARC</span><h3>Gost: Vladimir Đukanović</h3><p>U.S. Stock Exchange radionice: akcije, obveznice, zlato i osnove investiranja bez špekulacija.</p></div>
+      </article>
+      <article class="wshop wshop--wide wshop--nbs reveal">
+        <img src="posetanarodnojnbanci.jpg" alt="Članovi kluba u Muzeju novca Narodne banke Srbije" loading="lazy">
+        <div class="wshop__body"><span class="wshop__place">Narodna banka Srbije</span><h3>Poseta Muzeju novca</h3><p>Tokom Svetske nedelje novca, u organizaciji Casa Forte, obišli smo Muzej novca NBS uz predavanje o tržištu kapitala.</p></div>
+      </article>
       <article class="wshop wshop--wide reveal">
-        <img src="vladimirdjukanovi.jpg" alt="Gostujuće predavanje Vladimira Đukanovića na ARC-u" loading="lazy">
-        <div class="wshop__body"><span class="wshop__place">ARC</span><h3>Gost: Vladimir Đukanović</h3><p>Razgovor o tržištima, investiranju i karijeri u finansijama na otvorenom druženju.</p></div>
+        <img src="hero1.jpg" alt="Pun amfiteatar na predstavljanju kluba na FON-u" loading="lazy">
+        <div class="wshop__body"><span class="wshop__place">FON</span><h3>Predstavljanje kluba</h3><p>Pun amfiteatar na prvom predstavljanju: ciljevi, plan rada i prijave novih članova preko QR koda.</p></div>
       </article>
     </div>
   </div>
@@ -280,16 +353,20 @@
     <div class="sec-head reveal">
       <div>
         <p class="eyebrow">Momenti</p>
-        <h2 class="h-lead">Iz učionice i sa terena</h2>
+        <h2 class="h-lead">Prva godina kluba, u slikama</h2>
       </div>
     </div>
     <div class="strip reveal" tabindex="0" aria-label="Galerija fotografija, pomeri horizontalno">
       <figure><img src="radionica.jpg" alt="Predavanje na Fakultetu organizacionih nauka" loading="lazy"><figcaption>Predavanje na FON-u</figcaption></figure>
       <figure><img src="1783667574035.jpg" alt="Grafika sa rezultatima analitičara u portfolio takmičenju" loading="lazy"><figcaption>Rezultati sezone</figcaption></figure>
       <figure><img src="1775080761272.jpg" alt="Predavanje o finansijskoj piramidi" loading="lazy"><figcaption>Finansijska piramida</figcaption></figure>
-      <figure><img src="1773767820444.jpg" alt="Vizual Portfolio menadžment takmičenja" loading="lazy"><figcaption>Portfolio takmičenje</figcaption></figure>
+      <figure><img src="radionica%202.jpg" alt="Gostujuće predavanje o analizi akcija" loading="lazy"><figcaption>Analiza akcija</figcaption></figure>
+      <figure><img src="nova%20slika%204.jpg" alt="Pun amfiteatar na predstavljanju kluba" loading="lazy"><figcaption>Predstavljanje kluba</figcaption></figure>
       <figure><img src="1775080761628.jpg" alt="Alat za planiranje mesečnog budžeta" loading="lazy"><figcaption>Budžetiranje</figcaption></figure>
+      <figure><img src="nova%20slika%205.jpg" alt="Publika na predavanju kluba" loading="lazy"><figcaption>Puna sala</figcaption></figure>
+      <figure><img src="vladimirdjukanovic.jpg" alt="Gostujuće predavanje Vladimira Đukanovića na ARC-u" loading="lazy"><figcaption>Gost na ARC-u</figcaption></figure>
       <figure><img src="1775080761132.jpg" alt="Radionica u Erste Bank" loading="lazy"><figcaption>Poseta banci</figcaption></figure>
+      <figure><img src="erste%203.jpg" alt="Članovi kluba na radionici u Erste Bank" loading="lazy"><figcaption>Radionica u Erste</figcaption></figure>
     </div>
     <p class="strip-hint reveal">Prevuci za još &rarr;</p>
   </div>
@@ -322,43 +399,50 @@
 </section>
 
 <!-- Tim -->
-<section class="section section--paper" id="tim">
+<section class="section section--paper section--glyph" id="tim">
+  <span class="glyph glyph--bl" aria-hidden="true">β</span>
   <div class="wrap">
     <div class="sec-head reveal">
       <div>
         <p class="eyebrow">Ljudi</p>
         <h2 class="h-lead">Tim kluba</h2>
       </div>
-      <p class="lead-text">Studenti FON-a koji vode program, analize i takmičenja.</p>
+      <p class="lead-text">Klub su 2025. pokrenula dvojica studenata FON-a sa idejom da praktične finansije približe svim studentima.</p>
     </div>
-    <div class="team reveal">
-      <div class="team__photo">
-        <img src="radionica%202.jpg" alt="Članovi kluba na gostujućem predavanju" loading="lazy">
-      </div>
-      <div class="team__side">
-        <p>Klub se okuplja oko analiza tržišta, portfolio takmičenja i radionica sa partnerima iz industrije. Nove generacije primamo svake godine.</p>
-        <div class="roster">
-          <div class="rrow"><b>Miloš Pavlović</b><span>Portfolio menadžer</span></div>
-          <div class="rrow"><b>Živojin Milić</b><span>Analitičar</span></div>
-          <a class="rrow rrow--cta" href="#uclani-se"><b>Tvoje ime ovde</b><span>Prijavi se &rarr;</span></a>
+    <div class="founders">
+      <article class="founder founder--milos reveal">
+        <div class="founder__img"><img src="milos%20pavlovic.png" alt="Miloš Pavlović, osnivač Investicionog kluba studenata FON-a" loading="lazy"></div>
+        <div class="founder__body">
+          <span class="founder__role">Osnivač</span>
+          <h3>Miloš Pavlović</h3>
+          <p>Student finansija na FON-u sa iskustvom u specialised lending-u (project i real estate finance) u bankarskom sektoru i višegodišnjim radom na finansijskoj analizi u porodičnoj kompaniji. U klubu vodi fundamentalnu analizu i vrednovanje kompanija (DCF, multiples) i razvoj investicione discipline među studentima. Posebno ga zanimaju asset management, investiciono bankarstvo i private equity.</p>
         </div>
-      </div>
+      </article>
+      <article class="founder founder--mihailo reveal">
+        <div class="founder__img"><img src="mihailo%20petkovic.png" alt="Mihailo Petković, osnivač Investicionog kluba studenata FON-a" loading="lazy"></div>
+        <div class="founder__body">
+          <span class="founder__role">Osnivač</span>
+          <h3>Mihailo Petković</h3>
+          <p>Student treće godine FON-a, smer Finansijski menadžment. Najviše ga zanima tržište kapitala: berza, investicioni fondovi i akcije. Sa timom je pokrenuo radionice, predavanja i projekte koji spajaju teoriju i iskustvo, u okviru prve studentske organizacije na FON-u koja se u potpunosti bavi praktičnim znanjem iz finansija.</p>
+        </div>
+      </article>
     </div>
   </div>
 </section>
 
 <!-- Učlani se -->
-<section class="section section--paper" id="uclani-se">
+<section class="section section--paper section--glyph" id="uclani-se">
+  <span class="glyph glyph--tr" aria-hidden="true">Σ</span>
   <div class="wrap join-grid">
     <div class="join-panel reveal">
       <p class="eyebrow">Pridruži se</p>
       <h2>Učlani se u klub.</h2>
-      <p>Otvoreni smo za sve studente koji žele da nauče kako funkcionišu novac, tržišta i investiranje. Piši nam, javljamo se brzo.</p>
+      <p>Otvoreni smo za studente svih fakulteta i svih nivoa znanja. Popuni prijavu ili nam piši na Instagramu.</p>
       <a class="btn btn--on-navy" href="https://instagram.com/ikstudenatafona" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="17.8" cy="6.2" r="1.3" fill="currentColor" stroke="none"/></svg>
         Piši nam na Instagram
       </a>
-      <p class="join-panel__note">Otvoreno za sve fakultete<br>Bez predznanja<br>Odgovaramo u roku od par dana</p>
+      <p class="join-panel__note">Otvoreno za sve fakultete<br>Bez predznanja</p>
     </div>
 
     <form class="cform reveal" id="joinForm" novalidate>
@@ -374,7 +458,26 @@
       </div>
       <div class="ffield">
         <input id="fakultet" name="fakultet" type="text" placeholder=" " required>
-        <label for="fakultet">Fakultet i godina studija</label>
+        <label for="fakultet">Fakultet</label>
+      </div>
+      <div class="ffield--row">
+        <div class="ffield">
+          <select id="godina" name="godina" required aria-label="Godina studija">
+            <option value="" disabled selected hidden>Godina studija</option>
+            <option>1. godina</option>
+            <option>2. godina</option>
+            <option>3. godina</option>
+            <option>4. godina</option>
+            <option>Master</option>
+          </select>
+        </div>
+        <div class="ffield">
+          <select id="smer" name="smer" required aria-label="Smer">
+            <option value="" disabled selected hidden>Smer</option>
+            <option>IT</option>
+            <option>Menadžment</option>
+          </select>
+        </div>
       </div>
       <div class="ffield">
         <textarea id="poruka" name="poruka" placeholder=" "></textarea>
@@ -403,7 +506,7 @@
         <h4>Klub</h4>
         <ul>
           <li><a href="#o-nama">O nama</a></li>
-          <li><a href="#projekti">Projekti</a></li>
+          <li><a href="#projekti">Čime se bavimo</a></li>
           <li><a href="#takmicenje">Takmičenje</a></li>
           <li><a href="#tim">Tim</a></li>
         </ul>

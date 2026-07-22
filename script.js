@@ -70,6 +70,63 @@
     counters.forEach(function (el) { cio.observe(el); });
   }
 
+  /* ---- Hero slideshow ---- */
+  var heroBg = document.querySelector('.hero__bg');
+  if (heroBg) {
+    // nasumičan redosled slajdova pri svakom učitavanju
+    var scrim = heroBg.querySelector('.hero__scrim');
+    var toShuffle = Array.prototype.slice.call(heroBg.querySelectorAll('.slide'));
+    for (var si = toShuffle.length - 1; si > 0; si--) {
+      var sj = Math.floor(Math.random() * (si + 1));
+      var tmp = toShuffle[si]; toShuffle[si] = toShuffle[sj]; toShuffle[sj] = tmp;
+    }
+    toShuffle.forEach(function (el) {
+      el.classList.remove('is-active');
+      heroBg.insertBefore(el, scrim);
+    });
+    toShuffle[0].classList.add('is-active');
+  }
+
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.hero__bg .slide'));
+  var dots = Array.prototype.slice.call(document.querySelectorAll('.hero__dots button'));
+  if (slides.length > 1) {
+    var current = 0;
+    var slideTimer = null;
+
+    function showSlide(i) {
+      slides[current].classList.remove('is-active');
+      if (dots[current]) dots[current].classList.remove('is-active');
+      current = (i + slides.length) % slides.length;
+      slides[current].classList.add('is-active');
+      if (dots[current]) dots[current].classList.add('is-active');
+    }
+    function startAuto() {
+      if (reduce) return;
+      if (slideTimer) clearInterval(slideTimer);
+      slideTimer = setInterval(function () { showSlide(current + 1); }, 6000);
+    }
+    dots.forEach(function (dot, i) {
+      dot.addEventListener('click', function () {
+        showSlide(i);
+        startAuto();
+      });
+    });
+    startAuto();
+  }
+
+  /* ---- Odbrojavanje do projekta (kompaktno: za X dana) ---- */
+  var soonCounts = document.querySelectorAll('.soon-count[data-deadline]');
+  if (soonCounts.length) {
+    var nowMs = Date.now();
+    soonCounts.forEach(function (el) {
+      var t = new Date(el.getAttribute('data-deadline')).getTime() - nowMs;
+      if (isNaN(t)) return;
+      if (t <= 0) { el.textContent = 'U toku'; return; }
+      var d = Math.ceil(t / 864e5);
+      el.textContent = 'za ' + d + ' ' + (d === 1 ? 'dan' : 'dana');
+    });
+  }
+
   /* ---- Prijava (demo, bez slanja) ---- */
   var form = document.getElementById('joinForm');
   var ok = document.getElementById('formOk');
@@ -78,7 +135,7 @@
       e.preventDefault();
       if (!form.checkValidity()) { form.reportValidity(); return; }
       if (ok) ok.hidden = false;
-      form.querySelectorAll('input, textarea').forEach(function (f) { f.value = ''; });
+      form.querySelectorAll('input, textarea, select').forEach(function (f) { f.value = ''; });
     });
   }
 })();
