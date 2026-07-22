@@ -71,44 +71,50 @@
   }
 
   /* ---- Hero slideshow ---- */
-  var heroBg = document.querySelector('.hero__bg');
-  if (heroBg) {
-    // nasumičan redosled slajdova pri svakom učitavanju
-    var scrim = heroBg.querySelector('.hero__scrim');
-    var toShuffle = Array.prototype.slice.call(heroBg.querySelectorAll('.slide'));
-    for (var si = toShuffle.length - 1; si > 0; si--) {
-      var sj = Math.floor(Math.random() * (si + 1));
-      var tmp = toShuffle[si]; toShuffle[si] = toShuffle[sj]; toShuffle[sj] = tmp;
-    }
-    toShuffle.forEach(function (el) {
-      el.classList.remove('is-active');
-      heroBg.insertBefore(el, scrim);
-    });
-    toShuffle[0].classList.add('is-active');
-  }
-
   var slides = Array.prototype.slice.call(document.querySelectorAll('.hero__bg .slide'));
   var dots = Array.prototype.slice.call(document.querySelectorAll('.hero__dots button'));
-  if (slides.length > 1) {
-    var current = 0;
-    var slideTimer = null;
 
-    function showSlide(i) {
-      slides[current].classList.remove('is-active');
-      if (dots[current]) dots[current].classList.remove('is-active');
-      current = (i + slides.length) % slides.length;
-      slides[current].classList.add('is-active');
-      if (dots[current]) dots[current].classList.add('is-active');
+  function ensureLoaded(slide) {
+    if (!slide) return;
+    var img = slide.querySelector('img[data-src]');
+    if (img) { img.src = img.getAttribute('data-src'); img.removeAttribute('data-src'); }
+  }
+
+  if (slides.length > 1) {
+    // preostale slike učitaj tek nakon prvog prikaza (brži LCP na mobilnom)
+    function loadRest() { slides.forEach(ensureLoaded); }
+    if ('requestIdleCallback' in window) requestIdleCallback(loadRest, { timeout: 2500 });
+    else window.addEventListener('load', function () { setTimeout(loadRest, 400); });
+
+    // nasumičan redosled rotacije; prvi slajd uvek prvi (preload/LCP)
+    var order = [];
+    for (var i = 1; i < slides.length; i++) order.push(i);
+    for (var j = order.length - 1; j > 0; j--) {
+      var k = Math.floor(Math.random() * (j + 1));
+      var t = order[j]; order[j] = order[k]; order[k] = t;
+    }
+    order.unshift(0);
+
+    var pos = 0, slideTimer = null;
+    function showAt(p) {
+      var prev = order[pos];
+      slides[prev].classList.remove('is-active');
+      if (dots[prev]) dots[prev].classList.remove('is-active');
+      pos = (p + order.length) % order.length;
+      var idx = order[pos];
+      ensureLoaded(slides[idx]);
+      slides[idx].classList.add('is-active');
+      if (dots[idx]) dots[idx].classList.add('is-active');
     }
     function startAuto() {
       if (reduce) return;
       if (slideTimer) clearInterval(slideTimer);
-      slideTimer = setInterval(function () { showSlide(current + 1); }, 6000);
+      slideTimer = setInterval(function () { showAt(pos + 1); }, 6000);
     }
-    dots.forEach(function (dot, i) {
+    dots.forEach(function (dot, di) {
       dot.addEventListener('click', function () {
-        showSlide(i);
-        startAuto();
+        var op = order.indexOf(di);
+        if (op !== -1) { showAt(op); startAuto(); }
       });
     });
     startAuto();

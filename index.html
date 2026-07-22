@@ -11,7 +11,8 @@
 <link rel="icon" href="investicioni_klub_studenata_fona_logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,400..800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="erste2.jpg" fetchpriority="high">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,400..800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -86,11 +87,11 @@
 <!-- Hero -->
 <section class="hero">
   <div class="hero__bg" aria-hidden="true">
-    <div class="slide is-active"><img src="erste2.jpg" alt=""></div>
-    <div class="slide"><img src="erste%203.jpg" alt="" loading="lazy"></div>
-    <div class="slide"><img src="erste7.jpg" alt="" loading="lazy"></div>
-    <div class="slide"><img src="nova%20slika%204.jpg" alt="" loading="lazy"></div>
-    <div class="slide"><img src="111.jpg" alt="" loading="lazy"></div>
+    <div class="slide is-active"><img src="erste2.jpg" alt="" fetchpriority="high" decoding="async"></div>
+    <div class="slide"><img data-src="erste%203.jpg" alt="" decoding="async"></div>
+    <div class="slide"><img data-src="erste7.jpg" alt="" decoding="async"></div>
+    <div class="slide"><img data-src="nova%20slika%204.jpg" alt="" decoding="async"></div>
+    <div class="slide"><img data-src="111.jpg" alt="" decoding="async"></div>
     <div class="hero__scrim"></div>
   </div>
 
@@ -400,7 +401,7 @@
     </div>
     <div class="founders">
       <article class="founder founder--milos reveal">
-        <div class="founder__img"><img src="milos%20pavlovic.png" alt="Miloš Pavlović, osnivač Investicionog kluba studenata FON-a" loading="lazy"></div>
+        <div class="founder__img"><img src="milos.jpg" alt="Miloš Pavlović, osnivač Investicionog kluba studenata FON-a" loading="lazy"></div>
         <div class="founder__body">
           <span class="founder__role">Osnivač</span>
           <h3>Miloš Pavlović</h3>
@@ -408,7 +409,7 @@
         </div>
       </article>
       <article class="founder founder--mihailo reveal">
-        <div class="founder__img"><img src="mihailo%20petkovic.png" alt="Mihailo Petković, osnivač Investicionog kluba studenata FON-a" loading="lazy"></div>
+        <div class="founder__img"><img src="mihailo.jpg" alt="Mihailo Petković, osnivač Investicionog kluba studenata FON-a" loading="lazy"></div>
         <div class="founder__body">
           <span class="founder__role">Osnivač</span>
           <h3>Mihailo Petković</h3>
