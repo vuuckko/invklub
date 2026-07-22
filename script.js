@@ -114,18 +114,27 @@
     startAuto();
   }
 
-  /* ---- Odbrojavanje do projekta (kompaktno: za X dana) ---- */
-  var soonCounts = document.querySelectorAll('.soon-count[data-deadline]');
-  if (soonCounts.length) {
-    var nowMs = Date.now();
-    soonCounts.forEach(function (el) {
-      var t = new Date(el.getAttribute('data-deadline')).getTime() - nowMs;
+  /* ---- Live odbrojavanje (kvadratići: dani, sati, min, sek) ---- */
+  var cdHosts = document.querySelectorAll('.cd[data-deadline]');
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function tickCd() {
+    var now = Date.now();
+    cdHosts.forEach(function (el) {
+      var t = new Date(el.getAttribute('data-deadline')).getTime() - now;
       if (isNaN(t)) return;
-      if (t <= 0) { el.textContent = 'U toku'; return; }
-      var d = Math.ceil(t / 864e5);
-      el.textContent = 'za ' + d + ' ' + (d === 1 ? 'dan' : 'dana');
+      if (t <= 0) { el.innerHTML = '<span class="cd--live">U toku</span>'; return; }
+      var d = Math.floor(t / 864e5);
+      var h = Math.floor(t % 864e5 / 36e5);
+      var m = Math.floor(t % 36e5 / 6e4);
+      var s = Math.floor(t % 6e4 / 1e3);
+      el.innerHTML =
+        '<span>' + d + '<i>dana</i></span>' +
+        '<span>' + pad(h) + '<i>sati</i></span>' +
+        '<span>' + pad(m) + '<i>min</i></span>' +
+        '<span>' + pad(s) + '<i>sek</i></span>';
     });
   }
+  if (cdHosts.length) { tickCd(); setInterval(tickCd, 1000); }
 
   /* ---- Prijava (demo, bez slanja) ---- */
   var form = document.getElementById('joinForm');
