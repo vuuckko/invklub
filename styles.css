@@ -629,3 +629,67 @@ a.proj:hover .proj__img img{transform:scale(1.05)}
 .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
 .reveal.is-visible{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+
+/* =========================================================
+   Partneri — klizeći marquee
+   ========================================================= */
+.pmarquee{overflow:hidden;position:relative}
+.pmarquee::before,.pmarquee::after{content:"";position:absolute;top:0;bottom:0;width:70px;z-index:2;pointer-events:none}
+.pmarquee::before{left:0;background:linear-gradient(90deg,#fff,rgba(255,255,255,0))}
+.pmarquee::after{right:0;background:linear-gradient(270deg,#fff,rgba(255,255,255,0))}
+.pmarquee__track{display:flex;width:max-content;animation:pmarq 40s linear infinite;will-change:transform;backface-visibility:hidden}
+.pmarquee:hover .pmarquee__track{animation-play-state:paused}
+.pmarquee__set{display:flex}
+.plogo{flex:0 0 auto;width:200px;height:104px;margin:0 8px;display:grid;place-items:center;
+  background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px}
+.plogo img{max-height:46px;max-width:150px;width:auto;height:auto;object-fit:contain}
+/* obojene pločice (erste, raiffeisen) — uredan zaobljen čip umesto punog bloka */
+.plogo img[src="erste.jpg"]{max-height:50px;max-width:50px;border-radius:10px}
+.plogo img[src="Raiffeisen.png"]{max-height:40px;border-radius:8px}
+/* širok wordmark — daj mu punu širinu kartice */
+.plogo img[src="Banca_Intesa_Beograd_logo.png"]{max-width:168px}
+/* FON lockup ima dosta teksta — daj mu više visine */
+.plogo img[src="images.png"]{max-height:64px}
+@keyframes pmarq{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
+@media (prefers-reduced-motion:reduce){
+  .pmarquee::before,.pmarquee::after{display:none}
+  .pmarquee__track{animation:none;flex-wrap:wrap;justify-content:center}
+  .pmarquee__set[aria-hidden]{display:none}
+}
+@media (max-width:600px){.plogo{width:164px;height:92px}.pmarquee::before,.pmarquee::after{width:44px}}
+
+/* =========================================================
+   Takmičenje — interaktivni grafikon + pravila
+   ========================================================= */
+.takchart{margin-top:clamp(38px,5vw,60px)}
+.takchart__head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 24px;align-items:baseline;margin-bottom:16px}
+.takchart__head h3{font-family:var(--disp);font-stretch:112%;font-variation-settings:'wdth' 112;font-weight:700;font-size:1.35rem;letter-spacing:-.01em;color:#fff;margin:0}
+.takchart__sub{font-size:.86rem;color:var(--powder);opacity:.82;max-width:44ch}
+.takchart__legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.legitem{display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+  background:rgba(169,196,220,.08);border:1px solid rgba(169,196,220,.2);color:var(--powder-soft);
+  border-radius:999px;padding:7px 14px;font-size:.82rem;transition:opacity .15s ease,border-color .15s ease}
+.legitem:hover{border-color:var(--powder)}
+.legitem b{color:#fff;font-weight:700}
+.legitem .legdot{width:10px;height:10px;border-radius:50%;flex:none}
+.legitem.is-off{opacity:.4}
+.legitem.is-off .legdot{background:#6b7f92!important}
+.takchart__plot{position:relative}
+.takchart__plot svg{width:100%;height:auto;display:block;overflow:visible;touch-action:none}
+.takchart__tip{position:absolute;top:10px;pointer-events:none;z-index:3;min-width:130px;
+  background:#0a2338;border:1px solid rgba(169,196,220,.28);border-radius:12px;padding:10px 12px;
+  box-shadow:0 16px 36px -18px rgba(0,0,0,.75)}
+.takchart__tip[hidden]{display:none}
+.tiptitle{font-size:.72rem;color:var(--powder);opacity:.85;margin-bottom:7px}
+.tiprow{display:flex;align-items:center;gap:9px;font-size:.82rem;color:var(--powder-soft);line-height:1.75}
+.tiprow i{width:9px;height:9px;border-radius:2px;flex:none;font-style:normal}
+.tiprow b{color:#fff;margin-left:auto;font-weight:700}
+
+.takrules{margin-top:clamp(38px,5vw,56px)}
+.takrules h3{font-family:var(--disp);font-stretch:112%;font-variation-settings:'wdth' 112;font-weight:700;font-size:1.35rem;letter-spacing:-.01em;color:#fff;margin:0 0 20px}
+.takrules__list{list-style:none;counter-reset:r;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:14px 40px}
+.takrules__list li{counter-increment:r;position:relative;padding-left:44px;color:var(--powder-soft);font-size:.98rem;line-height:1.5;
+  border-top:1px solid rgba(169,196,220,.16);padding-top:16px}
+.takrules__list li::before{content:counter(r,decimal-leading-zero);position:absolute;left:0;top:15px;
+  font-family:var(--disp);font-weight:700;font-size:.9rem;color:var(--gain-bright)}
+@media (max-width:640px){.takrules__list{grid-template-columns:1fr}}
