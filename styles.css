@@ -152,11 +152,12 @@ section[id]{scroll-margin-top:86px}
 .brand{display:flex;align-items:center;gap:12px}
 .brand__name{font-family:var(--disp);font-stretch:112%;font-variation-settings:'wdth' 112;font-weight:700;font-size:1.06rem;line-height:1;color:var(--navy-800);letter-spacing:-.01em}
 .brand__sub{display:block;font-family:var(--mono);font-size:.56rem;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-soft);margin-top:4px;font-weight:400}
-.nav__links{display:flex;align-items:center;gap:28px;list-style:none;margin:0;padding:0}
-.nav__links a{font-size:.94rem;font-weight:600;color:var(--ink);position:relative;padding:6px 0}
+.nav__links{display:flex;align-items:center;gap:22px;list-style:none;margin:0;padding:0}
+.nav__links a{font-size:.94rem;font-weight:600;color:var(--ink);position:relative;padding:6px 0;white-space:nowrap}
 .nav__links a::after{content:"";position:absolute;left:0;bottom:0;width:0;height:2px;background:var(--accent);transition:width .22s ease}
 .nav__links a:hover::after,.nav__links a:focus-visible::after{width:100%}
-.nav__cta{display:flex;align-items:center;gap:14px}
+.nav__cta{display:flex;align-items:center;gap:14px;flex-shrink:0}
+.nav__cta .btn{white-space:nowrap}
 .nav__toggle{display:none;background:none;border:0;padding:8px;color:var(--navy-800)}
 .nav__toggle svg{width:26px;height:26px}
 
