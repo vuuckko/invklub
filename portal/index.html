@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Početna — Portal za članove IK FON-a</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="../investicioni_klub_studenata_fona_logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,400..800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="portal.css">
+</head>
+<body data-page="dashboard">
+
+<div class="portal-app">
+  <aside class="sidebar" id="sidebar-root"></aside>
+
+  <main class="portal-main">
+    <div class="portal-head">
+      <p class="eyebrow">Portal za članove</p>
+      <h1 class="h-lead">Zdravo, <em id="userFirstName">…</em>.</h1>
+    </div>
+
+    <div class="ledger-band ledger-band--navy">
+      <div class="ledger" id="statGrid"></div>
+    </div>
+
+    <div class="dash-grid">
+      <div>
+        <div class="panel">
+          <p class="panel__eyebrow">U toku</p>
+          <h2>Aktivni projekti</h2>
+          <div id="activeProjects" class="row-list"></div>
+        </div>
+        <div class="panel">
+          <p class="panel__eyebrow">Sledećih 14 dana</p>
+          <h2>Nadolazeći rokovi</h2>
+          <div id="upcomingDeadlines" class="row-list"></div>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <p class="panel__eyebrow">Sastav kluba</p>
+          <h2>Članovi po sektoru</h2>
+          <div id="sectorChart" class="barchart"></div>
+        </div>
+        <div class="panel">
+          <p class="panel__eyebrow">Sponzorstva</p>
+          <h2>Partneri po statusu</h2>
+          <div id="partnerBreakdown" class="row-list"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-client.js"></script>
+<script src="utils.js"></script>
+<script src="auth-guard.js"></script>
+<script src="shell.js"></script>
+<script src="dashboard.js"></script>
+</body>
+</html>

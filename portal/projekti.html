@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Projekti — Portal za članove IK FON-a</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="../investicioni_klub_studenata_fona_logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,400..800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="portal.css">
+</head>
+<body data-page="projekti">
+
+<div class="portal-app">
+  <aside class="sidebar" id="sidebar-root"></aside>
+
+  <main class="portal-main">
+
+    <div id="projectListView">
+      <div class="portal-head-row">
+        <div class="portal-head">
+          <p class="eyebrow">Investicioni klub</p>
+          <h1 class="h-lead">Projekti</h1>
+          <p class="lead-text" id="projectCount">Učitavam…</p>
+        </div>
+        <button type="button" class="btn btn--primary" id="newProjectBtn" hidden>+ Novi projekat</button>
+      </div>
+      <div class="project-list" id="projectList"></div>
+    </div>
+
+    <div id="projectDetailView" hidden>
+      <a href="projekti.html" class="back-link">&larr; Nazad na projekte</a>
+      <div class="portal-head-row">
+        <div class="portal-head">
+          <p class="eyebrow" id="detailStatus">…</p>
+          <h1 class="h-lead" id="detailName">…</h1>
+        </div>
+        <button type="button" class="btn btn--ghost" id="editProjectBtn" hidden>Uredi projekat</button>
+      </div>
+
+      <div class="panel">
+        <p id="detailDescription" class="text-muted"></p>
+        <div class="detail-meta-grid">
+          <div class="detail-meta-item">
+            <span class="detail-meta-item__label">Početak</span>
+            <span class="detail-meta-item__value" id="metaStart">—</span>
+          </div>
+          <div class="detail-meta-item">
+            <span class="detail-meta-item__label">Završetak</span>
+            <span class="detail-meta-item__value" id="metaDeadline">—</span>
+          </div>
+          <div class="detail-meta-item">
+            <span class="detail-meta-item__label">Trajanje</span>
+            <span class="detail-meta-item__value" id="metaDuration">—</span>
+          </div>
+          <div class="detail-meta-item">
+            <span class="detail-meta-item__label">Preostalo dana</span>
+            <span class="detail-meta-item__value" id="metaDaysLeft">—</span>
+          </div>
+          <div class="detail-meta-item">
+            <span class="detail-meta-item__label">Zadaci</span>
+            <span class="detail-meta-item__value" id="metaTasks">—</span>
+          </div>
+          <div class="detail-meta-item">
+            <span class="detail-meta-item__label">Kreiran</span>
+            <span class="detail-meta-item__value" id="metaCreated">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Članovi na projektu</h3>
+        <div id="detailMembers" class="tag-list"></div>
+      </div>
+
+      <div class="panel">
+        <h3>Partneri uključeni u projekat</h3>
+        <div id="detailPartners" class="tag-list"></div>
+      </div>
+
+      <div class="panel">
+        <div class="portal-head-row" style="margin-bottom:14px">
+          <h3 style="margin:0">Zadaci</h3>
+          <button type="button" class="btn btn--ghost btn--sm" id="newTaskBtn" hidden>+ Zadatak</button>
+        </div>
+        <div class="task-columns">
+          <div class="task-col"><h4>Za uraditi</h4><div id="col_todo"></div></div>
+          <div class="task-col"><h4>U toku</h4><div id="col_u_toku"></div></div>
+          <div class="task-col"><h4>Završeno</h4><div id="col_zavrseno"></div></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop" hidden>
+  <div class="modal" id="modalBody"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-client.js"></script>
+<script src="utils.js"></script>
+<script src="auth-guard.js"></script>
+<script src="shell.js"></script>
+<script src="projekti.js"></script>
+</body>
+</html>
