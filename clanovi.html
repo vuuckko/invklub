@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Članovi — Portal za članove IK FON-a</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="../investicioni_klub_studenata_fona_logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,400..800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="portal.css">
+</head>
+<body data-page="clanovi">
+
+<div class="portal-app">
+  <aside class="sidebar" id="sidebar-root"></aside>
+
+  <main class="portal-main">
+    <div class="portal-head">
+      <p class="eyebrow">Investicioni klub</p>
+      <h1 class="h-lead">Baza članova</h1>
+      <p class="lead-text" id="memberCount">Učitavam…</p>
+    </div>
+
+    <div class="filters">
+      <input type="search" id="searchInput" placeholder="Pretraga po imenu ili emailu…">
+      <select id="sectorFilter"><option value="all">Svi sektori</option></select>
+      <select id="statusFilter">
+        <option value="all">Svi statusi</option>
+        <option value="active">Aktivan</option>
+        <option value="alumni">Alumni</option>
+      </select>
+    </div>
+
+    <div class="table-wrap">
+      <table class="dtable">
+        <thead>
+          <tr>
+            <th>Ime</th>
+            <th>Sektor</th>
+            <th>Pozicija</th>
+            <th>Status</th>
+            <th>Kontakt</th>
+          </tr>
+        </thead>
+        <tbody id="membersBody"></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop" hidden>
+  <div class="modal" id="modalBody"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-client.js"></script>
+<script src="utils.js"></script>
+<script src="auth-guard.js"></script>
+<script src="shell.js"></script>
+<script src="clanovi.js"></script>
+</body>
+</html>

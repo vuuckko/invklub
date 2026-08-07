@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prijava — Portal za članove IK FON-a</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="../investicioni_klub_studenata_fona_logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,400..800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="portal.css">
+<style>
+  body{background:var(--navy-900)}
+  .login-wrap{min-height:100vh;display:grid;grid-template-columns:1fr 1fr}
+  @media (max-width:860px){.login-wrap{grid-template-columns:1fr}}
+  .login-side{
+    display:flex;flex-direction:column;justify-content:space-between;
+    padding:48px;color:#fff;
+  }
+  @media (max-width:860px){.login-side{display:none}}
+  .login-side .ik-mark{width:36px;height:36px;color:#fff}
+  .login-side .brand-row{display:flex;align-items:center;gap:10px}
+  .login-side .brand-row span{font-family:var(--disp);font-weight:700;font-size:1.05rem}
+  .login-side .brand-row small{display:block;font-size:.7rem;color:var(--powder);opacity:.7;font-weight:400}
+  .login-pitch{max-width:360px}
+  .login-pitch p.eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--powder);margin:0 0 14px}
+  .login-pitch h1{font-family:var(--disp);font-weight:700;font-stretch:112%;font-variation-settings:'wdth' 112;font-size:2.1rem;line-height:1.1;margin:0 0 14px}
+  .login-pitch p{color:var(--powder-soft);margin:0}
+  .login-side .fine{font-size:.75rem;color:var(--powder);opacity:.5}
+
+  .login-form-side{background:#fff;display:flex;align-items:center;justify-content:center;padding:32px}
+  .login-form-box{width:100%;max-width:380px}
+  .login-form-box h2{font-family:var(--disp);font-weight:700;font-size:1.5rem;margin:0 0 6px;color:var(--ink)}
+  .login-form-box p.lead{color:var(--ink-soft);margin:0 0 22px;font-size:.92rem}
+  .login-error{background:#fdecea;color:#b3261e;padding:10px 14px;border-radius:var(--r-sm);font-size:.85rem;margin-bottom:16px}
+  .login-error[hidden]{display:none}
+  .login-submit{width:100%;justify-content:center;margin-top:4px}
+  .login-note{margin-top:18px;font-size:.8rem;color:var(--ink-soft)}
+</style>
+</head>
+<body>
+
+<div class="login-wrap">
+  <aside class="login-side">
+    <div class="brand-row">
+      <svg class="ik-mark" viewBox="0 0 100 100" aria-hidden="true">
+        <g fill="none" stroke="#a9c4dc" stroke-linecap="round" stroke-width="7">
+          <circle cx="50" cy="50" r="44" stroke-dasharray="205 72" transform="rotate(-25 50 50)"/>
+          <circle cx="50" cy="50" r="33" stroke-dasharray="150 57" transform="rotate(130 50 50)"/>
+          <circle cx="50" cy="50" r="22" stroke-dasharray="92 46" transform="rotate(230 50 50)"/>
+        </g>
+        <g fill="currentColor">
+          <rect x="33" y="54" width="5" height="10" rx="1.4"/>
+          <rect x="40.5" y="49" width="5" height="15" rx="1.4"/>
+          <rect x="48" y="43" width="5" height="21" rx="1.4"/>
+          <rect x="55.5" y="37" width="5" height="27" rx="1.4"/>
+          <rect x="63" y="31" width="5" height="33" rx="1.4"/>
+        </g>
+      </svg>
+      <span>Investicioni klub<small>studenata FON-a</small></span>
+    </div>
+
+    <div class="login-pitch">
+      <p class="eyebrow">Portal za članove</p>
+      <h1>Članovi, projekti i partneri na jednom mestu.</h1>
+      <p>Interni alat kluba — pristup imaju samo pozvani članovi sa nalogom koji im dodeli uprava.</p>
+    </div>
+
+    <p class="fine">&copy; <span id="year"></span> Investicioni klub studenata FON-a</p>
+  </aside>
+
+  <main class="login-form-side">
+    <div class="login-form-box">
+      <h2>Prijava</h2>
+      <p class="lead">Unesi email i lozinku koju ti je dala uprava kluba.</p>
+
+      <p class="login-error" id="loginError" hidden></p>
+
+      <form id="loginForm" novalidate>
+        <div class="ffield">
+          <input id="email" name="email" type="email" placeholder=" " autocomplete="email" required>
+          <label for="email">Email</label>
+        </div>
+        <div class="ffield">
+          <input id="password" name="password" type="password" placeholder=" " autocomplete="current-password" required>
+          <label for="password">Lozinka</label>
+        </div>
+        <button type="submit" class="btn btn--primary login-submit" id="loginSubmit">Prijavi se</button>
+      </form>
+
+      <p class="login-note">Nemaš nalog ili si zaboravio/la lozinku? Javi se upravi kluba.</p>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-client.js"></script>
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  const params = new URLSearchParams(window.location.search);
+  const next = params.get('next') || 'index.html';
+
+  // Already logged in? skip straight to the app.
+  sb.auth.getSession().then(({ data: { session } }) => {
+    if (session) window.location.href = next;
+  });
+
+  const form = document.getElementById('loginForm');
+  const errorBox = document.getElementById('loginError');
+  const submitBtn = document.getElementById('loginSubmit');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorBox.hidden = true;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Prijavljujem…';
+
+    const email = form.email.value.trim();
+    const password = form.password.value;
+
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      errorBox.textContent = 'Pogrešan email ili lozinka. Proveri i pokušaj ponovo.';
+      errorBox.hidden = false;
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Prijavi se';
+      return;
+    }
+
+    window.location.href = next;
+  });
+</script>
+
+</body>
+</html>
