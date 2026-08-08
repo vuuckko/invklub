@@ -598,6 +598,36 @@ table.dtable td.num{text-align:right}
 .detail-meta-item__label{display:block;font-size:.78rem;color:var(--ink-soft);margin-bottom:3px}
 .detail-meta-item__value{font-weight:700;color:var(--ink);font-family:var(--disp)}
 
+/* ---------- Beleške (shared notes — everyone reads & writes) ----------
+   View mode reads like a printed memo: comfortable measure (68ch caps line
+   length), generous line-height, paragraphs from blank-line-separated
+   blocks — not a raw dump of a textarea. Edit mode is a single plain
+   textarea, no markdown/rich-text — "moze da se kuca tekst" was the whole
+   ask, and a shared document anyone can touch is exactly the wrong place
+   to add syntax someone has to learn. One shared row, last save wins,
+   same as club_settings.annual_goal — no conflict UI. */
+.notes-sheet{max-width:68ch}
+.notes-sheet__head{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:22px}
+.notes-sheet__head .statement__folio{margin-bottom:0;flex:1;min-width:0}
+.notes-edit-btn{
+  flex:none;width:34px;height:34px;border-radius:var(--r-sm);
+  border:1.5px solid var(--line);background:#fff;color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  transition:border-color .15s ease,color .15s ease;
+}
+.notes-edit-btn svg{width:16px;height:16px}
+.notes-edit-btn:hover{border-color:var(--accent);color:var(--accent)}
+.notes-sheet__body{font-size:1.05rem;line-height:1.75;color:var(--ink)}
+.notes-sheet__body p{margin:0 0 1.2em}
+.notes-sheet__body p:last-child{margin-bottom:0}
+.notes-textarea{
+  display:block;width:100%;min-height:380px;
+  border:1.5px solid var(--line);border-radius:var(--r-md);
+  padding:18px 20px;font:inherit;font-size:1rem;line-height:1.7;color:var(--ink);
+  resize:vertical;transition:border-color .15s ease;
+}
+.notes-textarea:focus{outline:none;border-color:var(--accent)}
+
 /* ---------- Modal ---------- */
 .modal-backdrop{
   position:fixed;inset:0;background:rgba(8,36,59,.55);

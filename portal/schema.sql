@@ -177,6 +177,17 @@ create table club_settings (
   updated_at timestamptz not null default now()
 );
 
+-- Beleške — one shared row (same single-row pattern as club_settings
+-- above), everyone reads AND writes. No per-author entries, no locking,
+-- no conflict warning — last save wins, on purpose, matching how
+-- club_settings.annual_goal already behaves.
+create table club_notes (
+  id uuid primary key default gen_random_uuid(),
+  content text not null default '',
+  updated_by uuid references profiles (id) on delete set null,
+  updated_at timestamptz not null default now()
+);
+
 -- ---------------------------------------------------------------------------
 -- Auto-create profile on signup (admin creates the auth user manually with
 -- email+password in Supabase Dashboard; this fires right after that).
@@ -238,6 +249,10 @@ $$;
 
 create trigger partners_set_updated_by
   before update on partners
+  for each row execute function public.set_updated_by();
+
+create trigger club_notes_set_updated_by
+  before update on club_notes
   for each row execute function public.set_updated_by();
 
 -- ---------------------------------------------------------------------------
@@ -373,6 +388,7 @@ alter table partners enable row level security;
 alter table transactions enable row level security;
 alter table club_settings enable row level security;
 alter table documents enable row level security;
+alter table club_notes enable row level security;
 
 -- sectors: everyone reads, only admin writes
 create policy "sectors_select_all" on sectors
@@ -474,6 +490,15 @@ create policy "documents_admin_all" on documents
   for all using (auth.uid() is null or public.is_admin())
   with check (auth.uid() is null or public.is_admin());
 
+-- club_notes: everyone reads and writes — same shared-spreadsheet trust
+-- level as partners, not the admin-gated CRM tables above.
+create policy "club_notes_select_all" on club_notes
+  for select using (auth.role() = 'authenticated');
+create policy "club_notes_update_all" on club_notes
+  for update using (auth.role() = 'authenticated');
+
+alter publication supabase_realtime add table club_notes;
+
 -- ---------------------------------------------------------------------------
 -- Storage — one private bucket for club documents. Files are only ever
 -- served via createSignedUrl(), never a public link, and the bucket's own
@@ -512,6 +537,10 @@ on conflict (lower(name), type) do nothing;
 insert into club_settings (annual_goal)
 select 0
 where not exists (select 1 from club_settings);
+
+insert into club_notes (content)
+select ''
+where not exists (select 1 from club_notes);
 
 -- ---------------------------------------------------------------------------
 -- Bootstrap: run manually, ONCE, after creating each founder's auth user

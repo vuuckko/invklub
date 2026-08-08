@@ -24,6 +24,10 @@ const NAV_ICONS = {
   finansije: `<path d="M4 17 9 12 12.5 14.5 20 6"/><path d="M14.5 6h5.5v5.5"/>`,
   dokumenti: `<path d="M7 3.5h7l4 4v12.5a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1z"/><path d="M14 3.5V8h4"/><path d="M9 12.3h6M9 15.8h4"/>`,
   kalendar: `<rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/>`,
+  // Pencil — echoes the page's own "click the pencil to edit" interaction,
+  // and a diagonal quadrilateral is a distinct silhouette from every
+  // rounded/circular shape above it.
+  beleske: `<path d="M16.5 4.5 19.5 7.5 9 18 4.5 19.5 6 15z"/><path d="M14 7 17 10"/>`,
 };
 
 function navIcon(key) {
@@ -80,6 +84,7 @@ async function renderShell() {
     </div>
     <div class="sidebar__bottom">
       <nav class="sidebar__nav">
+        ${navLink({ href: "beleske.html", label: "Beleške", page: "beleske", icon: "beleske" })}
         ${navLink({ href: "kalendar.html", label: "Kalendar", page: "kalendar", icon: "kalendar" })}
       </nav>
       <div class="sidebar__user">

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Beleške — Portal za članove IK FON-a</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="../investicioni_klub_studenata_fona_logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="portal.css">
+</head>
+<body data-page="beleske">
+
+<div class="portal-app">
+  <aside class="sidebar" id="sidebar-root"></aside>
+
+  <main class="portal-main">
+    <div class="notes-sheet">
+
+      <div id="notesView">
+        <div class="notes-sheet__head">
+          <p class="statement__folio" id="notesFolio">Beleške</p>
+          <button type="button" class="notes-edit-btn" id="editNoteBtn" title="Izmeni beleške">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 4.5 19.5 7.5 9 18 4.5 19.5 6 15z"/><path d="M14 7 17 10"/></svg>
+          </button>
+        </div>
+        <div class="notes-sheet__body" id="notesBody"></div>
+      </div>
+
+      <form id="notesEditForm" hidden>
+        <p class="text-muted" style="margin:0 0 10px;font-size:.85rem">Prazan red između pasusa pravi novi pasus u prikazu.</p>
+        <textarea id="notesTextarea" class="notes-textarea"></textarea>
+        <div class="modal__actions">
+          <button type="submit" class="btn btn--primary" id="saveNoteBtn">Sačuvaj</button>
+          <button type="button" class="btn btn--ghost" id="cancelEditBtn">Otkaži</button>
+        </div>
+      </form>
+
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-client.js"></script>
+<script src="utils.js"></script>
+<script src="auth-guard.js"></script>
+<script src="shell.js"></script>
+<script src="beleske.js"></script>
+</body>
+</html>
