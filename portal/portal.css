@@ -370,6 +370,9 @@ a.ledger-row:hover .ledger-row__name{color:var(--accent)}
 .mini-row{display:flex;align-items:center;gap:14px;padding-block:10px;border-top:1px solid var(--line);font-size:.88rem}
 .mini-row:first-child{border-top:none}
 .mini-row__name{flex:none;width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
+.mini-row__name--icon{display:flex;align-items:center;gap:6px}
+.mini-row__name--icon svg{flex:none;width:15px;height:15px;color:var(--accent)}
+.mini-row__name--icon span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .mini-row__bar{flex:1;height:3px;background:var(--mist)}
 .mini-row__bar span{display:block;height:100%;background:var(--accent)}
 .mini-row__count{font-family:var(--sans);font-weight:700;width:22px;text-align:right;flex:none}

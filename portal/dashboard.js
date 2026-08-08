@@ -197,7 +197,7 @@
       .map(
         (s) => `
       <div class="mini-row">
-        <span class="mini-row__name">${escapeHtml(s.name)}</span>
+        <span class="mini-row__name mini-row__name--icon">${sectorIcon(s.name)}<span>${escapeHtml(s.name)}</span></span>
         <span class="mini-row__bar"><span style="width:${(s.count / maxSector) * 100}%"></span></span>
         <span class="mini-row__count">${s.count}</span>
       </div>
