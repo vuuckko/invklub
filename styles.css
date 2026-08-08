@@ -98,15 +98,21 @@ section[id]{scroll-margin-top:86px}
 /* ---------- Buttons ---------- */
 .btn{
   display:inline-flex;align-items:center;gap:.6em;
-  padding:.9em 1.5em;border-radius:999px;
+  padding:.9em 1.5em;border-radius:var(--r-sm);
   font-weight:700;font-size:.96rem;letter-spacing:.01em;
   border:1.5px solid transparent;
-  transition:transform .18s ease,background .18s ease,box-shadow .18s ease,color .18s ease,border-color .18s ease;
+  transition:background .18s ease,box-shadow .18s ease,color .18s ease,border-color .18s ease;
 }
-.btn:hover{transform:translateY(-2px)}
 .btn svg{width:18px;height:18px;flex:none}
-.btn--primary{background:var(--accent);color:#fff;box-shadow:0 12px 26px -12px rgba(30,119,196,.8)}
-.btn--primary:hover{background:var(--accent-600)}
+/* Was a full pill (999px) with a bright blue glow shadow in --accent and a
+   hover lift — that exact combination (pill + coloured glow + lift) reads
+   as a generic AI/SaaS-template button. --r-sm matches the corner radius
+   already used elsewhere on the site; --shadow-soft is the same neutral
+   elevation used on .cform, not a bespoke coloured glow; fill is
+   --navy-900, the brand's own ink, not the accent blue (which is closer
+   to Bootstrap's default primary than to anything else on this site). */
+.btn--primary{background:var(--navy-900);color:#fff;box-shadow:var(--shadow-soft)}
+.btn--primary:hover{background:var(--navy-700)}
 .btn--ghost{background:transparent;color:var(--ink);border-color:var(--line)}
 .btn--ghost:hover{border-color:var(--accent);color:var(--accent)}
 .btn--on-navy{background:var(--white);color:var(--navy-800)}
@@ -153,11 +159,33 @@ section[id]{scroll-margin-top:86px}
 .brand__name{font-family:var(--disp);font-stretch:112%;font-variation-settings:'wdth' 112;font-weight:700;font-size:1.06rem;line-height:1;color:var(--navy-800);letter-spacing:-.01em}
 .brand__sub{display:block;font-family:var(--mono);font-size:.56rem;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-soft);margin-top:4px;font-weight:400}
 .nav__links{display:flex;align-items:center;gap:22px;list-style:none;margin:0;padding:0}
-.nav__links a{font-size:.94rem;font-weight:600;color:var(--ink);position:relative;padding:6px 0;white-space:nowrap}
+/* Quieter at rest (--ink-soft, not full --ink) and only reaching full
+   contrast on hover/focus — seven same-weight items sitting in one flat
+   row at full ink colour was competing with the brand mark and CTA for
+   attention instead of sitting back as wayfinding. */
+.nav__links a{font-size:.94rem;font-weight:600;color:var(--ink-soft);position:relative;padding:6px 0;white-space:nowrap;transition:color .18s ease}
 .nav__links a::after{content:"";position:absolute;left:0;bottom:0;width:0;height:2px;background:var(--accent);transition:width .22s ease}
+.nav__links a:hover,.nav__links a:focus-visible{color:var(--ink)}
 .nav__links a:hover::after,.nav__links a:focus-visible::after{width:100%}
-.nav__cta{display:flex;align-items:center;gap:14px;flex-shrink:0}
+/* "Portal za članove" is a different kind of link than the six section
+   anchors around it (external tool, opens a new tab) — as just another
+   <li> in this list it read as "one of the menu items", per direct
+   feedback. Moved into .nav__cta as its own small ghost-pill next to the
+   primary CTA instead (see .nav__portal-link below); this copy stays in
+   the list, hidden on desktop, purely so the mobile hamburger menu still
+   has an entry once .nav__cta is hidden there. */
+.nav__links-portal{display:none}
+.nav__cta{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .nav__cta .btn{white-space:nowrap}
+.nav__portal-link{
+  display:flex;align-items:center;gap:7px;
+  padding:8px 14px;border-radius:var(--r-sm);
+  border:1.5px solid var(--line);color:var(--navy-800);
+  font-size:.88rem;font-weight:600;white-space:nowrap;
+  transition:border-color .18s ease,color .18s ease;
+}
+.nav__portal-link svg{width:16px;height:16px;flex:none}
+.nav__portal-link:hover{border-color:var(--accent);color:var(--accent)}
 .nav__toggle{display:none;background:none;border:0;padding:8px;color:var(--navy-800)}
 .nav__toggle svg{width:26px;height:26px}
 
@@ -172,9 +200,10 @@ section[id]{scroll-margin-top:86px}
   }
   .nav__links.is-open{transform:translateY(0)}
   .nav__links li{width:100%;border-bottom:1px solid var(--line)}
-  .nav__links a{display:block;padding:16px 0;width:100%}
+  .nav__links a{display:block;padding:16px 0;width:100%;color:var(--ink)}
+  .nav__links-portal{display:list-item}
   .nav__toggle{display:block}
-  .nav__cta .btn{display:none}
+  .nav__cta .btn,.nav__cta .nav__portal-link{display:none}
 }
 
 /* =========================================================
