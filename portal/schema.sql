@@ -521,7 +521,9 @@ insert into sectors (name, description) values
   ('IT i inovacije', 'Portal za članove, interni alati, tehnički projekti kluba.'),
   ('Marketing i PR', 'Društvene mreže, sadržaj, komunikacija sa javnošću.'),
   ('Sponzorstva i partnerstva', 'Odnosi sa bankama i institucijama.'),
-  ('Edukacija i sadržaj', 'Radionice, mesečne analize, gostujuća predavanja.')
+  ('Korporativni i akademski odnosi', 'Saradnja sa fakultetom i profesorima, odnosi sa kompanijama van sponzorstva.'),
+  ('Logistika i projekti', 'Organizacija radionica i događaja, koordinacija projekata kluba.'),
+  ('Ljudski resursi', 'Regrutacija i onboarding novih članova, interna komunikacija i kultura kluba.')
 on conflict (name) do nothing;
 
 insert into tags (name, type) values

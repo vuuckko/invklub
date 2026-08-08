@@ -514,12 +514,21 @@ table.dtable td.num{text-align:right}
   width:38px;height:38px;border-radius:50%;background:var(--accent);color:#fff;
   display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.86rem;flex:none;
 }
-.member-card__name-wrap{min-width:0}
 .member-card__name{
-  font-weight:700;color:var(--ink);font-size:.92rem;
+  font-weight:700;color:var(--ink);font-size:.92rem;min-width:0;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
-.member-card__meta{font-size:.8rem;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Sector gets its own row with an icon instead of being crammed onto one
+   truncated line with position — full name wraps to a second line rather
+   than ellipsizing, since "Sponzorstva i partnerstva" cut to "Sponzorstva
+   i par…" told you nothing. align-items:flex-start (not center) so the
+   icon sits at the cap-height of the first line, not centred against the
+   full wrapped height once a name runs to two lines. */
+.member-card__sector{display:flex;align-items:flex-start;gap:8px;font-size:.8rem;color:var(--ink-soft);line-height:1.35}
+.member-card__sector svg{flex:none;width:19px;height:19px;margin-top:1px;color:var(--accent)}
+.member-card__sector span{overflow-wrap:break-word}
+.member-card__no-sector{opacity:.7}
+.member-card__position{margin:0;padding-left:24px;font-size:.78rem;color:var(--ink-soft)}
 .member-card__foot{
   display:flex;justify-content:space-between;align-items:center;gap:8px;
   padding-top:10px;border-top:1px solid var(--line);

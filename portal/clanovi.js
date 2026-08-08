@@ -71,11 +71,16 @@ function renderGrid() {
       <div class="member-card" data-id="${m.id}">
         <div class="member-card__top">
           <span class="member-card__avatar">${escapeHtml(initials(m.full_name))}</span>
-          <div class="member-card__name-wrap">
-            <p class="member-card__name">${escapeHtml(m.full_name || "(bez imena)")}</p>
-            <p class="member-card__meta">${escapeHtml(m.sector?.name ?? "Bez sektora")}${m.position ? " · " + escapeHtml(m.position) : ""}</p>
-          </div>
+          <p class="member-card__name">${escapeHtml(m.full_name || "(bez imena)")}</p>
         </div>
+        <div class="member-card__sector">
+          ${
+            m.sector
+              ? `${sectorIcon(m.sector.name)}<span>${escapeHtml(m.sector.name)}</span>`
+              : `<span class="member-card__no-sector">Bez sektora</span>`
+          }
+        </div>
+        ${m.position ? `<p class="member-card__position">${escapeHtml(m.position)}</p>` : ""}
         <div class="member-card__foot">
           <span class="status-dot ${m.status === "active" ? "status-dot--gain" : "status-dot--neutral"}">${STATUS_LABELS[m.status] ?? m.status}</span>
           ${m.role === "admin" ? `<span class="badge badge--light">${roleLabelFor(m)}</span>` : `<span class="member-card__email">${escapeHtml(m.email)}</span>`}

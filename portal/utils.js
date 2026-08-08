@@ -1,3 +1,55 @@
+// Same construction as shell.js's NAV_ICONS (24x24, stroke 1.8, round
+// caps/joins, fill:none on the parent svg) so a sector tag never looks
+// like it came from a different icon set. Keyed by exact sector name —
+// sectors have no other client-stable identifier, and in practice only
+// change via direct SQL (no sector-management UI exists), so this is
+// safe. Falls back to a plain dot for any name not in the map, so a
+// sector added later without a matching code update still shows
+// something instead of breaking.
+const SECTOR_ICONS = {
+  // Bulb + a small hexagon-with-bore standing in for a gear (a hub-and-4-
+  // ticks version was tried first and, zoomed, read as a target/crosshair
+  // instead — a hexagon is unambiguous at this size, full gear teeth are
+  // not) + base + three rays. Zones don't overlap (rays above y3.5,
+  // bulb+gear span y3.5-16.5, base below y16), which is what keeps a
+  // multi-shape icon legible at 16-18px instead of crowding.
+  "IT i inovacije": `<circle cx="12" cy="10" r="6.5"/><path d="M12 7.6 13.8 8.7v2.2L12 12l-1.8-1.1V8.7z"/><circle cx="12" cy="9.7" r=".6"/><path d="M9.3 16v1.3a1 1 0 0 0 1 1h3.4a1 1 0 0 0 1-1V16"/><path d="M10 20.3h4"/><path d="M12 1.3v1.8"/><path d="M5.6 4.1l1.3 1.3"/><path d="M18.4 4.1l-1.3 1.3"/>`,
+  "Marketing i PR": `<path d="M4 10v4a1 1 0 0 0 1 1h2l6 3.5V5.5L7 9H5a1 1 0 0 0-1 1z"/><path d="M17 9.5a3.2 3.2 0 0 1 0 5"/><path d="M19.5 7.5a6.5 6.5 0 0 1 0 9"/>`,
+  // Same two-overlapping-circles as the Partneri nav icon — deliberate
+  // reuse, this sector IS that domain, not a coincidence to avoid.
+  "Sponzorstva i partnerstva": `<circle cx="9" cy="12" r="6.3"/><circle cx="15.5" cy="12" r="6.3"/>`,
+  // Round 5, different concept entirely: a person with four connections
+  // radiating out to other nodes — "one contact point, many relationships"
+  // reads for corporate AND academic relations without trying to be a
+  // literal handshake. User supplied this reference directly (a filled
+  // person silhouette + radiating lines to small circles).
+  // Attempt 1 kept the person as a thin stroke outline (matching every
+  // other sector icon) — zoomed, a 1.8px-stroke head+shoulders that small
+  // has almost no interior negative space, so it merged into a blob at
+  // the hub where all four lines meet; the figure read as part of the
+  // starburst, not a distinct shape.
+  // Attempt 2 shrank the person and pushed the four line start-points
+  // fully outside its bbox — better separation, but the shoulder arc was
+  // still too thin-stroke-thin to register as "a person" next to four
+  // bold lines competing for the same small canvas.
+  // Fix, same lesson the handshake icon already taught: switch the person
+  // to a small FILLED silhouette (`<g fill="currentColor" stroke="none">`,
+  // same exception BRAND_MARK_SVG and the handshake use) instead of an
+  // outline — solid shapes hold up at small sizes where thin strokes with
+  // tiny gaps don't. Connector lines stay normal thin stroke outside the
+  // silhouette's bbox (x 7.8-16.2, y 5.8-15.5), so the two elements read
+  // as clearly separate: one bold shape, four fine lines around it.
+  "Korporativni i akademski odnosi": `<g fill="currentColor" stroke="none"><circle cx="12" cy="7.7" r="1.9"/><path d="M7.8 15.5C7.8 12.3 9.6 10.6 12 10.6C14.4 10.6 16.2 12.3 16.2 15.5Z"/></g><path d="M6.5 8.5 2 4"/><circle cx="1.6" cy="3.6" r="1.2"/><path d="M17.5 8.5l4.5-4.5"/><circle cx="22.4" cy="3.6" r="1.2"/><path d="M7 15.8l-5 4.2"/><circle cx="1.6" cy="20.4" r="1.2"/><path d="M17 15.8l5 4.2"/><circle cx="22.4" cy="20.4" r="1.2"/>`,
+  "Logistika i projekti": `<path d="M12 3.5 20 8v8l-8 4.5-8-4.5V8z"/><path d="M12 3.5 4 8l8 4.5 8-4.5"/><path d="M12 12.5v8"/>`,
+  "Ljudski resursi": `<rect x="5" y="4.5" width="14" height="16" rx="2.5"/><circle cx="12" cy="10.5" r="2.3"/><path d="M8 16.5c.6-1.8 2-2.7 4-2.7s3.4.9 4 2.7"/>`,
+};
+const SECTOR_ICON_FALLBACK = `<circle cx="12" cy="12" r="8.5"/>`;
+
+function sectorIcon(name) {
+  const path = SECTOR_ICONS[name] ?? SECTOR_ICON_FALLBACK;
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${path}</svg>`;
+}
+
 function escapeHtml(str) {
   // Manual replace, not textContent->innerHTML: that DOM round-trip only
   // escapes & < > (correct for text-node placement) and silently leaves
