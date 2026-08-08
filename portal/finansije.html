@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Finansije — Portal za članove IK FON-a</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="../investicioni_klub_studenata_fona_logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="portal.css">
+</head>
+<body data-page="finansije">
+
+<div class="portal-app">
+  <aside class="sidebar" id="sidebar-root"></aside>
+
+  <main class="portal-main">
+    <div class="portal-head">
+      <h1 class="h-lead">Finansije</h1>
+    </div>
+
+    <section class="statement" id="heroStats"></section>
+
+    <section class="statement-section">
+      <div class="statement-section__head">
+        <h2>Čeka odobrenje</h2>
+        <span class="count" id="pendingCount"></span>
+      </div>
+      <div id="pendingList" class="ledger-rows"></div>
+    </section>
+
+    <section class="statement-section">
+      <div class="statement-columns">
+        <div>
+          <div class="statement-section__head"><h2>Rashodi po kategoriji</h2></div>
+          <div id="categoryChart" class="mini-rows"></div>
+        </div>
+        <div>
+          <div class="statement-section__head"><h2>Nadolazeće uplate</h2></div>
+          <div id="upcomingPayments" class="mini-rows"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="statement-section">
+      <div class="portal-head-row" style="margin-bottom:14px">
+        <h2 style="margin:0;font-family:var(--disp);font-weight:700;font-size:1.1rem">Sve transakcije</h2>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button type="button" class="btn btn--ghost btn--sm" id="exportCsvBtn">Izvezi CSV</button>
+          <button type="button" class="btn btn--ghost btn--sm" id="printBtn">Odštampaj izveštaj</button>
+          <button type="button" class="btn btn--primary btn--sm" id="newTransactionBtn">+ Nova transakcija</button>
+        </div>
+      </div>
+
+      <div class="filters">
+        <input type="search" id="searchInput" placeholder="Pretraga po opisu/kategoriji…">
+        <select id="typeFilter">
+          <option value="all">Prihod i rashod</option>
+          <option value="prihod">Samo prihod</option>
+          <option value="rashod">Samo rashod</option>
+        </select>
+        <select id="statusFilter">
+          <option value="all">Svi statusi</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <table class="dtable" id="reportTable">
+          <thead>
+            <tr>
+              <th>Datum</th>
+              <th>Tip</th>
+              <th>Kategorija</th>
+              <th>Opis</th>
+              <th>Projekat / partner</th>
+              <th>Status</th>
+              <th class="num">Iznos</th>
+            </tr>
+          </thead>
+          <tbody id="transactionsBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop" hidden>
+  <div class="modal" id="modalBody"></div>
+</div>
+
+<datalist id="categoryOptions">
+  <option value="Sponzorstvo">
+  <option value="Članarine">
+  <option value="Donacija fakulteta">
+  <option value="Zakup prostora">
+  <option value="Štampa i materijal">
+  <option value="Ketering">
+  <option value="Putni troškovi">
+  <option value="Marketing">
+  <option value="Ostalo">
+</datalist>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-client.js"></script>
+<script src="utils.js"></script>
+<script src="auth-guard.js"></script>
+<script src="shell.js"></script>
+<script src="finansije.js"></script>
+</body>
+</html>

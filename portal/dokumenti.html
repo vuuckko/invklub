@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Partneri — Portal za članove IK FON-a</title>
+<title>Dokumenti — Portal za članove IK FON-a</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="../investicioni_klub_studenata_fona_logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="../styles.css">
 <link rel="stylesheet" href="portal.css">
 </head>
-<body data-page="partneri">
+<body data-page="dokumenti">
 
 <div class="portal-app">
   <aside class="sidebar" id="sidebar-root"></aside>
@@ -20,18 +20,13 @@
   <main class="portal-main">
     <div class="portal-head-row">
       <div class="portal-head">
-        <h1 class="h-lead">Partneri</h1>
-        <p class="lead-text" id="partnerCount">Učitavam…</p>
+        <h1 class="h-lead">Dokumenti</h1>
+        <p class="lead-text" id="docCount">Učitavam…</p>
       </div>
-      <button type="button" class="btn btn--primary" id="newPartnerBtn">+ Dodaj partnera</button>
+      <button type="button" class="btn btn--primary" id="newDocBtn">+ Dodaj dokument</button>
     </div>
 
-    <div class="filters">
-      <input type="search" id="searchInput" placeholder="Pretraga po firmi ili kontakt osobi…">
-      <select id="statusFilter"><option value="all">Svi statusi</option></select>
-    </div>
-
-    <div class="partner-grid" id="partnersGrid"></div>
+    <div id="docGroups"></div>
   </main>
 </div>
 
@@ -44,6 +39,6 @@
 <script src="utils.js"></script>
 <script src="auth-guard.js"></script>
 <script src="shell.js"></script>
-<script src="partneri.js"></script>
+<script src="dokumenti.js"></script>
 </body>
 </html>

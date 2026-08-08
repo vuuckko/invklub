@@ -8,7 +8,7 @@
 <link rel="icon" href="../investicioni_klub_studenata_fona_logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,400..800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,400..700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../styles.css">
 <link rel="stylesheet" href="portal.css">
 </head>
@@ -19,40 +19,36 @@
 
   <main class="portal-main">
     <div class="portal-head">
-      <p class="eyebrow">Portal za članove</p>
       <h1 class="h-lead">Zdravo, <em id="userFirstName">…</em>.</h1>
     </div>
 
-    <div class="ledger-band ledger-band--navy">
-      <div class="ledger" id="statGrid"></div>
-    </div>
+    <section class="statement" id="heroStats"></section>
 
-    <div class="dash-grid">
-      <div>
-        <div class="panel">
-          <p class="panel__eyebrow">U toku</p>
-          <h2>Aktivni projekti</h2>
-          <div id="activeProjects" class="row-list"></div>
+    <section class="statement-section">
+      <div class="statement-section__head">
+        <h2>Aktivni projekti</h2>
+        <span class="count" id="activeProjectsCount"></span>
+      </div>
+      <div id="activeProjects" class="ledger-rows"></div>
+    </section>
+
+    <section class="statement-section">
+      <div class="statement-columns">
+        <div>
+          <div class="statement-section__head"><h2>Nadolazeći rokovi</h2></div>
+          <div id="upcomingDeadlines" class="mini-rows"></div>
         </div>
-        <div class="panel">
-          <p class="panel__eyebrow">Sledećih 14 dana</p>
-          <h2>Nadolazeći rokovi</h2>
-          <div id="upcomingDeadlines" class="row-list"></div>
+        <div>
+          <div class="statement-section__head"><h2>Sastav kluba</h2></div>
+          <div id="sectorChart" class="mini-rows"></div>
         </div>
       </div>
-      <div>
-        <div class="panel">
-          <p class="panel__eyebrow">Sastav kluba</p>
-          <h2>Članovi po sektoru</h2>
-          <div id="sectorChart" class="barchart"></div>
-        </div>
-        <div class="panel">
-          <p class="panel__eyebrow">Sponzorstva</p>
-          <h2>Partneri po statusu</h2>
-          <div id="partnerBreakdown" class="row-list"></div>
-        </div>
-      </div>
-    </div>
+    </section>
+
+    <section class="statement-section" id="partnersSection">
+      <div class="statement-section__head"><h2>Partneri</h2></div>
+      <div id="partnerBreakdown" class="mini-rows"></div>
+    </section>
   </main>
 </div>
 

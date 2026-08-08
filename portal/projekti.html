@@ -8,7 +8,7 @@
 <link rel="icon" href="../investicioni_klub_studenata_fona_logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,400..800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,400..700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../styles.css">
 <link rel="stylesheet" href="portal.css">
 </head>
@@ -22,13 +22,12 @@
     <div id="projectListView">
       <div class="portal-head-row">
         <div class="portal-head">
-          <p class="eyebrow">Investicioni klub</p>
           <h1 class="h-lead">Projekti</h1>
           <p class="lead-text" id="projectCount">Učitavam…</p>
         </div>
         <button type="button" class="btn btn--primary" id="newProjectBtn" hidden>+ Novi projekat</button>
       </div>
-      <div class="project-list" id="projectList"></div>
+      <div class="ledger-rows" id="projectList"></div>
     </div>
 
     <div id="projectDetailView" hidden>
@@ -81,6 +80,8 @@
         <div id="detailPartners" class="tag-list"></div>
       </div>
 
+      <div id="financeSection"></div>
+
       <div class="panel">
         <div class="portal-head-row" style="margin-bottom:14px">
           <h3 style="margin:0">Zadaci</h3>
@@ -100,6 +101,18 @@
 <div class="modal-backdrop" id="modalBackdrop" hidden>
   <div class="modal" id="modalBody"></div>
 </div>
+
+<datalist id="categoryOptions">
+  <option value="Sponzorstvo">
+  <option value="Članarine">
+  <option value="Donacija fakulteta">
+  <option value="Zakup prostora">
+  <option value="Štampa i materijal">
+  <option value="Ketering">
+  <option value="Putni troškovi">
+  <option value="Marketing">
+  <option value="Ostalo">
+</datalist>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="supabase-client.js"></script>

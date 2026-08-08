@@ -12,9 +12,17 @@ let selectedDate = toDateKey(new Date());
 (async () => {
   await renderShell();
 
-  const [{ data: tasks }, { data: projects }] = await Promise.all([
+  const [{ data: tasks }, { data: projects }, { data: payments }] = await Promise.all([
     sb.from("tasks").select("id, title, due_date, status, project_id").not("due_date", "is", null),
     sb.from("projects").select("id, name, start_date, deadline, status"),
+    // Empty for non-admins (RLS) — not an error, just nothing to plot.
+    sb
+      .from("transactions")
+      .select("id, category, amount, date, status, partner_id, type")
+      .eq("type", "prihod")
+      .neq("status", "zavrseno")
+      .neq("status", "odbijeno")
+      .not("partner_id", "is", null),
   ]);
 
   for (const t of tasks ?? []) {
@@ -32,6 +40,13 @@ let selectedDate = toDateKey(new Date());
     if (p.start_date && p.deadline) {
       markSpan(p.start_date, p.deadline);
     }
+  }
+  for (const pay of payments ?? []) {
+    addItem(pay.date, {
+      type: "payment",
+      label: `Uplata: ${formatCurrency(pay.amount)}`,
+      href: "finansije.html",
+    });
   }
 
   const today = new Date();
@@ -155,7 +170,10 @@ function renderSelectedDay() {
 
   document.getElementById("selectedDayTitle").textContent = isToday
     ? "Danas"
-    : date.toLocaleDateString("sr-RS", { day: "numeric", month: "long", year: "numeric" });
+    : `${date.getDate()}. ${MONTH_NAMES[date.getMonth()]} ${date.getFullYear()}.`;
+
+  const TYPE_BADGE = { task: "badge--light", project: "badge--gain", payment: "badge--warn" };
+  const TYPE_LABEL = { task: "Zadatak", project: "Projekat", payment: "Uplata" };
 
   document.getElementById("selectedDayList").innerHTML = items.length
     ? items
@@ -163,7 +181,7 @@ function renderSelectedDay() {
           (it) => `
       <a class="row-item" href="${it.href}" style="text-decoration:none">
         <span class="row-item__title">${escapeHtml(it.label)}</span>
-        <span class="badge ${it.type === "task" ? "badge--light" : "badge--gain"}">${it.type === "task" ? "Zadatak" : "Projekat"}</span>
+        <span class="badge ${TYPE_BADGE[it.type] ?? "badge--light"}">${TYPE_LABEL[it.type] ?? it.type}</span>
       </a>
     `,
         )

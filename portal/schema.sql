@@ -18,6 +18,8 @@ create type task_status as enum ('todo', 'u_toku', 'zavrseno');
 create type partner_status as enum (
   'nije_kontaktiran', 'kontaktiran', 'u_pregovorima', 'aktivna_saradnja', 'neuspesno'
 );
+create type transaction_type as enum ('prihod', 'rashod');
+create type transaction_status as enum ('na_cekanju', 'odobreno', 'zavrseno', 'odbijeno');
 
 -- ---------------------------------------------------------------------------
 -- Sectors
@@ -79,6 +81,7 @@ create table projects (
   start_date date,
   deadline date,
   status project_status not null default 'planiranje',
+  budget_amount numeric(12,2),
   created_by uuid references profiles (id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -115,6 +118,8 @@ create table partners (
   phone text,
   status partner_status not null default 'nije_kontaktiran',
   notes text,
+  last_contact_date date,
+  next_contact_date date,
   created_by uuid references profiles (id) on delete set null,
   created_at timestamptz not null default now(),
   updated_by uuid references profiles (id) on delete set null,
@@ -125,6 +130,51 @@ create table project_partners (
   project_id uuid not null references projects (id) on delete cascade,
   partner_id uuid not null references partners (id) on delete cascade,
   primary key (project_id, partner_id)
+);
+
+-- ---------------------------------------------------------------------------
+-- Documents — admin-only at every layer (table RLS below, and the matching
+-- storage.objects policy further down). Not part of the shared CRM like
+-- partners: regular members should not see the list exists, let alone read
+-- files, so this is never client-side-only gating.
+-- ---------------------------------------------------------------------------
+
+create table documents (
+  id uuid primary key default gen_random_uuid(),
+  project_id uuid references projects (id) on delete cascade,
+  name text not null,
+  storage_path text not null,
+  file_size bigint,
+  mime_type text,
+  uploaded_by uuid references profiles (id) on delete set null,
+  created_at timestamptz not null default now()
+);
+
+-- ---------------------------------------------------------------------------
+-- Finance — general ledger. Sponsor payment installments are just rows here
+-- (income, linked to partner_id, due date in `date`, not yet 'zavrseno') so
+-- the Kalendar page can plot them with the same logic as task/project dates.
+-- ---------------------------------------------------------------------------
+
+create table transactions (
+  id uuid primary key default gen_random_uuid(),
+  type transaction_type not null,
+  category text not null,
+  amount numeric(12,2) not null check (amount > 0),
+  description text,
+  date date not null default current_date,
+  status transaction_status not null default 'na_cekanju',
+  project_id uuid references projects (id) on delete set null,
+  partner_id uuid references partners (id) on delete set null,
+  created_by uuid references profiles (id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table club_settings (
+  id uuid primary key default gen_random_uuid(),
+  annual_goal numeric(12,2) not null default 0,
+  updated_at timestamptz not null default now()
 );
 
 -- ---------------------------------------------------------------------------
@@ -169,6 +219,10 @@ create trigger projects_set_updated_at
 
 create trigger tasks_set_updated_at
   before update on tasks
+  for each row execute function public.set_updated_at();
+
+create trigger transactions_set_updated_at
+  before update on transactions
   for each row execute function public.set_updated_at();
 
 create function public.set_updated_by()
@@ -290,6 +344,9 @@ alter table project_members enable row level security;
 alter table project_partners enable row level security;
 alter table tasks enable row level security;
 alter table partners enable row level security;
+alter table transactions enable row level security;
+alter table club_settings enable row level security;
+alter table documents enable row level security;
 
 -- sectors: everyone reads, only admin writes
 create policy "sectors_select_all" on sectors
@@ -365,6 +422,46 @@ create policy "partners_delete_admin" on partners
 -- Live updates on the shared partners sheet.
 alter publication supabase_realtime add table partners;
 
+-- transactions: admin-only reads (money is more sensitive than the rest of
+-- the CRM); anyone can propose one, but only for themselves and only as
+-- 'na_cekanju' — non-admins can never insert a row they could already see
+-- as approved/settled, and can't read the ledger back either way.
+create policy "transactions_select_admin" on transactions
+  for select using (auth.uid() is null or public.is_admin());
+create policy "transactions_insert_self_pending_or_admin" on transactions
+  for insert with check (
+    auth.uid() is null
+    or public.is_admin()
+    or (created_by = auth.uid() and status = 'na_cekanju')
+  );
+create policy "transactions_update_admin" on transactions
+  for update using (auth.uid() is null or public.is_admin());
+create policy "transactions_delete_admin" on transactions
+  for delete using (auth.uid() is null or public.is_admin());
+
+create policy "club_settings_select_admin" on club_settings
+  for select using (auth.uid() is null or public.is_admin());
+create policy "club_settings_update_admin" on club_settings
+  for update using (auth.uid() is null or public.is_admin());
+
+create policy "documents_admin_all" on documents
+  for all using (auth.uid() is null or public.is_admin())
+  with check (auth.uid() is null or public.is_admin());
+
+-- ---------------------------------------------------------------------------
+-- Storage — one private bucket for club documents. Files are only ever
+-- served via createSignedUrl(), never a public link, and the bucket's own
+-- storage.objects policy mirrors the admin-only rule on the documents table.
+-- ---------------------------------------------------------------------------
+
+insert into storage.buckets (id, name, public)
+values ('documents', 'documents', false)
+on conflict (id) do nothing;
+
+create policy "documents_storage_admin_all" on storage.objects
+  for all using (bucket_id = 'documents' and (auth.uid() is null or public.is_admin()))
+  with check (bucket_id = 'documents' and (auth.uid() is null or public.is_admin()));
+
 -- ---------------------------------------------------------------------------
 -- Starting data — edit freely.
 -- ---------------------------------------------------------------------------
@@ -385,6 +482,10 @@ insert into tags (name, type) values
   ('Private equity', 'interest'), ('Marketing', 'interest'),
   ('Tržište kapitala', 'interest'), ('Startapi', 'interest')
 on conflict (lower(name), type) do nothing;
+
+insert into club_settings (annual_goal)
+select 0
+where not exists (select 1 from club_settings);
 
 -- ---------------------------------------------------------------------------
 -- Bootstrap: run manually, ONCE, after creating each founder's auth user

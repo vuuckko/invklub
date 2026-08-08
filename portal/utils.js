@@ -1,16 +1,29 @@
 function escapeHtml(str) {
-  const div = document.createElement("div");
-  div.textContent = str ?? "";
-  return div.innerHTML;
+  // Manual replace, not textContent->innerHTML: that DOM round-trip only
+  // escapes & < > (correct for text-node placement) and silently leaves
+  // " and ' untouched, which breaks when the result is interpolated into
+  // an HTML attribute like value="${escapeHtml(x)}" — a stored value
+  // containing a `"` closes the attribute early and injects new ones.
+  return String(str ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
 }
+
+const MONTHS_SHORT = [
+  "jan", "feb", "mar", "apr", "maj", "jun",
+  "jul", "avg", "sep", "okt", "nov", "dec",
+];
 
 function formatDate(value) {
   if (!value) return "—";
-  return new Date(value).toLocaleDateString("sr-RS", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
+  // Not toLocaleDateString("sr-RS", ...) — that locale's short-month data is
+  // Cyrillic in most browsers, which clashes with the all-Latin rest of the
+  // site. Format manually to keep it Latin everywhere.
+  const d = new Date(value);
+  return `${d.getDate()}. ${MONTHS_SHORT[d.getMonth()]} ${d.getFullYear()}.`;
 }
 
 function daysUntil(value) {
@@ -82,6 +95,54 @@ const PROJECT_STATUS_DOT = {
   zavrsen: "status-dot--gain",
   pauziran: "status-dot--warn",
 };
+
+const TRANSACTION_TYPE_LABELS = {
+  prihod: "Prihod",
+  rashod: "Rashod",
+};
+
+const TRANSACTION_STATUS_LABELS = {
+  na_cekanju: "Čeka odobrenje",
+  odobreno: "Odobreno",
+  zavrseno: "Završeno",
+  odbijeno: "Odbijeno",
+};
+
+const TRANSACTION_STATUS_DOT = {
+  na_cekanju: "status-dot--warn",
+  odobreno: "status-dot--accent",
+  zavrseno: "status-dot--gain",
+  odbijeno: "status-dot--neutral",
+};
+
+// Bare number, no unit — for statement columns where "RSD" sits in the
+// header instead of being repeated on every row (printed statements never
+// repeat the currency on each line).
+function formatAmount(amount) {
+  return Number(amount ?? 0).toLocaleString("sr-RS", { maximumFractionDigits: 0 });
+}
+
+function formatCurrency(amount) {
+  return `${formatAmount(amount)} RSD`;
+}
+
+// U+2212 minus, not a hyphen — lines up with digits in tabular figures.
+function formatSigned(amount) {
+  const n = Number(amount ?? 0);
+  return n < 0 ? `−${formatAmount(Math.abs(n))}` : formatAmount(n);
+}
+
+function formatFileSize(bytes) {
+  const n = Number(bytes ?? 0);
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(0)} KB`;
+  return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function fileExtension(name) {
+  const match = /\.([a-z0-9]+)$/i.exec(name ?? "");
+  return match ? match[1].toUpperCase() : "";
+}
 
 function toast(message, type = "info") {
   let el = document.getElementById("toast");

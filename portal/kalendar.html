@@ -8,7 +8,7 @@
 <link rel="icon" href="../investicioni_klub_studenata_fona_logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,400..800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,400..700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../styles.css">
 <link rel="stylesheet" href="portal.css">
 </head>
@@ -19,7 +19,6 @@
 
   <main class="portal-main">
     <div class="portal-head">
-      <p class="eyebrow">Investicioni klub</p>
       <h1 class="h-lead">Kalendar</h1>
       <p class="lead-text">Rokovi projekata i zadataka.</p>
     </div>
@@ -27,13 +26,11 @@
     <div class="dash-grid">
       <div class="panel">
         <div class="cal-head">
-          <div class="cal-nav">
+          <button type="button" id="todayBtn" class="btn btn--ghost btn--sm">Danas</button>
+          <div class="cal-nav cal-nav--center">
             <button type="button" id="prevMonth" aria-label="Prethodni mesec">&larr;</button>
-          </div>
-          <span class="cal-head__title" id="calTitle">…</span>
-          <div class="cal-nav">
+            <span class="cal-head__title" id="calTitle">…</span>
             <button type="button" id="nextMonth" aria-label="Sledeći mesec">&rarr;</button>
-            <button type="button" id="todayBtn" class="btn btn--ghost btn--sm" style="margin-left:8px">Danas</button>
           </div>
         </div>
         <div class="cal-grid" id="calGrid"></div>

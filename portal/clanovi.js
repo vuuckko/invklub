@@ -25,17 +25,30 @@ let allTags = [];
   const searchInput = document.getElementById("searchInput");
   const statusFilter = document.getElementById("statusFilter");
   [searchInput, sectorFilter, statusFilter].forEach((el) =>
-    el.addEventListener("input", renderTable),
+    el.addEventListener("input", renderGrid),
   );
 
-  renderTable();
+  renderGrid();
 })();
 
-function renderTable() {
+function initials(name) {
+  if (!name) return "?";
+  return name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase())
+    .join("");
+}
+
+// A wide table forced every member into one row shape regardless of how
+// much they'd actually filled in, which is why it read as a dense,
+// hard-to-scan strip. Cards let each member take only the space their own
+// data needs and scan like a contact sheet instead of a spreadsheet.
+function renderGrid() {
   const searchInput = document.getElementById("searchInput");
   const sectorFilter = document.getElementById("sectorFilter");
   const statusFilter = document.getElementById("statusFilter");
-  const tbody = document.getElementById("membersBody");
+  const grid = document.getElementById("membersGrid");
 
   const q = searchInput.value.trim().toLowerCase();
   const sectorVal = sectorFilter.value;
@@ -51,27 +64,30 @@ function renderTable() {
     return matchesQ && matchesSector && matchesStatus;
   });
 
-  tbody.innerHTML = filtered.length
+  grid.innerHTML = filtered.length
     ? filtered
         .map(
           (m) => `
-      <tr class="member-row" data-id="${m.id}" style="cursor:pointer">
-        <td>
-          <strong>${escapeHtml(m.full_name || "(bez imena)")}</strong>
-          ${m.role === "admin" ? '<span class="badge badge--light" style="margin-left:8px">Uprava</span>' : ""}
-        </td>
-        <td class="text-muted">${escapeHtml(m.sector?.name ?? "—")}</td>
-        <td class="text-muted">${escapeHtml(m.position ?? "—")}</td>
-        <td><span class="status-dot ${m.status === "active" ? "status-dot--gain" : "status-dot--neutral"}">${STATUS_LABELS[m.status] ?? m.status}</span></td>
-        <td class="text-muted">${escapeHtml(m.email)}</td>
-      </tr>
+      <div class="member-card" data-id="${m.id}">
+        <div class="member-card__top">
+          <span class="member-card__avatar">${escapeHtml(initials(m.full_name))}</span>
+          <div class="member-card__name-wrap">
+            <p class="member-card__name">${escapeHtml(m.full_name || "(bez imena)")}</p>
+            <p class="member-card__meta">${escapeHtml(m.sector?.name ?? "Bez sektora")}${m.position ? " · " + escapeHtml(m.position) : ""}</p>
+          </div>
+        </div>
+        <div class="member-card__foot">
+          <span class="status-dot ${m.status === "active" ? "status-dot--gain" : "status-dot--neutral"}">${STATUS_LABELS[m.status] ?? m.status}</span>
+          ${m.role === "admin" ? '<span class="badge badge--light">Uprava</span>' : `<span class="member-card__email">${escapeHtml(m.email)}</span>`}
+        </div>
+      </div>
     `,
         )
         .join("")
-    : `<tr><td colspan="5" class="empty-state">Nema članova koji odgovaraju filteru.</td></tr>`;
+    : '<p class="empty-state">Nema članova koji odgovaraju filteru.</p>';
 
-  tbody.querySelectorAll(".member-row").forEach((row) => {
-    row.addEventListener("click", () => openMemberModal(row.dataset.id));
+  grid.querySelectorAll(".member-card").forEach((card) => {
+    card.addEventListener("click", () => openMemberModal(card.dataset.id));
   });
 }
 
@@ -128,22 +144,22 @@ async function openMemberModal(memberId) {
 
     <form id="memberForm">
       <div class="field-grid">
-        <div class="ffield">
-          <input id="f_full_name" placeholder=" " value="${escapeHtml(member.full_name ?? "")}" ${canEditPersonal ? "" : "disabled"}>
-          <label for="f_full_name">Ime i prezime</label>
-        </div>
-        <div class="ffield">
+        <label class="field-label">
+          <span>Ime i prezime</span>
+          <input id="f_full_name" value="${escapeHtml(member.full_name ?? "")}" ${canEditPersonal ? "" : "disabled"}>
+        </label>
+        <label class="field-label">
+          <span>Email</span>
           <input value="${escapeHtml(member.email)}" disabled>
-          <label>Email</label>
-        </div>
-        <div class="ffield">
-          <input id="f_phone" placeholder=" " value="${escapeHtml(member.phone ?? "")}" ${canEditPersonal ? "" : "disabled"}>
-          <label for="f_phone">Telefon</label>
-        </div>
-        <div class="ffield">
-          <input id="f_linkedin" placeholder=" " value="${escapeHtml(member.linkedin_url ?? "")}" ${canEditPersonal ? "" : "disabled"}>
-          <label for="f_linkedin">LinkedIn</label>
-        </div>
+        </label>
+        <label class="field-label">
+          <span>Telefon</span>
+          <input id="f_phone" value="${escapeHtml(member.phone ?? "")}" ${canEditPersonal ? "" : "disabled"}>
+        </label>
+        <label class="field-label">
+          <span>LinkedIn</span>
+          <input id="f_linkedin" value="${escapeHtml(member.linkedin_url ?? "")}" ${canEditPersonal ? "" : "disabled"}>
+        </label>
         <label class="field-label">
           <span>Sektor</span>
           <select id="f_sector" ${canEditAdminFields ? "" : "disabled"}>
@@ -151,10 +167,10 @@ async function openMemberModal(memberId) {
             ${sectors.map((s) => `<option value="${s.id}" ${s.id === member.sector_id ? "selected" : ""}>${escapeHtml(s.name)}</option>`).join("")}
           </select>
         </label>
-        <div class="ffield">
-          <input id="f_position" placeholder=" " value="${escapeHtml(member.position ?? "")}" ${canEditAdminFields ? "" : "disabled"}>
-          <label for="f_position">Pozicija</label>
-        </div>
+        <label class="field-label">
+          <span>Pozicija</span>
+          <input id="f_position" value="${escapeHtml(member.position ?? "")}" ${canEditAdminFields ? "" : "disabled"}>
+        </label>
         <label class="field-label">
           <span>Status</span>
           <select id="f_status" ${canEditAdminFields ? "" : "disabled"}>
@@ -255,9 +271,11 @@ function renderMemberReport(member, selectedTagIds) {
       <div class="detail-meta-item">
         <span class="detail-meta-item__label">LinkedIn</span>
         <span class="detail-meta-item__value" style="font-size:.95rem">${
-          member.linkedin_url
+          member.linkedin_url && /^https?:\/\//i.test(member.linkedin_url)
             ? `<a href="${escapeHtml(member.linkedin_url)}" target="_blank" rel="noopener">Profil &rarr;</a>`
-            : "—"
+            : member.linkedin_url
+              ? escapeHtml(member.linkedin_url)
+              : "—"
         }</span>
       </div>
       <div class="detail-meta-item">

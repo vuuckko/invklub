@@ -80,12 +80,6 @@ function progressFor(projectId) {
   return { done, total: list.length, pct: list.length ? Math.round((done / list.length) * 100) : 0 };
 }
 
-function statusRowClass(status) {
-  if (status === "zavrsen") return "is-done";
-  if (status === "pauziran") return "is-paused";
-  return "";
-}
-
 // ---------------------------------------------------------------------------
 // List view — few projects, so a detailed vertical list beats a card grid.
 // ---------------------------------------------------------------------------
@@ -106,27 +100,29 @@ function renderList() {
           const memberIds = membersByProject.get(p.id) ?? [];
           const partnerIds = partnersByProject.get(p.id) ?? [];
           const { done, total, pct } = progressFor(p.id);
-          const days = daysUntil(p.deadline);
           const duration = formatDuration(p.start_date, p.deadline);
           const dateRange = p.start_date && p.deadline
             ? `${formatDate(p.start_date)} → ${formatDate(p.deadline)}`
             : p.deadline
               ? `Do ${formatDate(p.deadline)}`
               : "Bez datuma";
+          const memberLabel = memberIds.length ? `${memberIds.length} ${memberIds.length === 1 ? "član" : "članova"}` : null;
+          const partnerLabel = partnerIds.length ? `${partnerIds.length} ${partnerIds.length === 1 ? "partner" : "partnera"}` : null;
+
           return `
-        <a class="project-row ${statusRowClass(p.status)}" href="projekti.html?id=${p.id}">
-          <div class="project-row__head">
-            <span class="project-row__name">${escapeHtml(p.name)}</span>
-            <span class="status-dot ${PROJECT_STATUS_DOT[p.status] ?? ""}">${PROJECT_STATUS_LABELS[p.status] ?? p.status}</span>
+        <a class="ledger-row" href="projekti.html?id=${p.id}">
+          <div>
+            <span class="ledger-row__name">${escapeHtml(p.name)}</span>
+            <span class="ledger-row__meta">
+              <span class="status-dot ${PROJECT_STATUS_DOT[p.status] ?? ""}" style="margin-right:8px">${PROJECT_STATUS_LABELS[p.status] ?? p.status}</span>
+              ${dateRange}${duration ? ` · ${duration}` : ""}${memberLabel ? ` · ${memberLabel}` : ""}${partnerLabel ? ` · ${partnerLabel}` : ""}
+            </span>
           </div>
-          ${p.description ? `<p class="project-row__desc">${escapeHtml(p.description)}</p>` : ""}
-          <div class="project-row__meta">
-            <span>${dateRange}${duration ? ` · <strong>${duration}</strong>` : ""}${days !== null && days >= 0 ? ` (za ${days} d.)` : ""}</span>
-            <span><strong>${done}/${total}</strong> zadataka</span>
-            <span><strong>${memberIds.length}</strong> ${memberIds.length === 1 ? "član" : "članova"}</span>
-            ${partnerIds.length ? `<span><strong>${partnerIds.length}</strong> ${partnerIds.length === 1 ? "partner" : "partnera"}</span>` : ""}
+          <div class="ledger-row__value">
+            <span class="ledger-row__pct">${total ? pct + "%" : "—"}</span>
+            <span class="ledger-row__sub">${done}/${total} zadataka</span>
+            ${total ? `<div class="ledger-row__bar"><span style="width:${pct}%"></span></div>` : ""}
           </div>
-          <div class="progress" style="margin-top:10px"><div class="progress__fill" style="width:${pct}%"></div></div>
         </a>
       `;
         })
@@ -193,7 +189,210 @@ function renderDetail(id) {
     newTaskBtn.onclick = () => openTaskForm(project);
   }
 
+  renderFinanceSection(project);
   renderTaskColumns(project);
+}
+
+// ---------------------------------------------------------------------------
+// Finance panel — admin sees budget/spent/remaining + can add transactions;
+// everyone else just gets a submission button (RLS keeps it write-only for
+// them, so there's nothing to read back into this section either way).
+// ---------------------------------------------------------------------------
+
+async function renderFinanceSection(project) {
+  const container = document.getElementById("financeSection");
+
+  if (!isAdmin) {
+    container.innerHTML = `
+      <div class="panel">
+        <h3>Troškovi</h3>
+        <p class="text-muted" style="margin:0 0 12px">Potrošio/la si nešto za ovaj projekat? Prijavi trošak — uprava ga odobrava.</p>
+        <button type="button" class="btn btn--ghost btn--sm" id="submitExpenseBtn">Prijavi trošak</button>
+      </div>
+    `;
+    document
+      .getElementById("submitExpenseBtn")
+      .addEventListener("click", () => openExpenseSubmitForm(project));
+    return;
+  }
+
+  const { data: projectTx } = await sb
+    .from("transactions")
+    .select("*")
+    .eq("project_id", project.id)
+    .order("date", { ascending: false });
+
+  const list = projectTx ?? [];
+  const spent = list
+    .filter((t) => t.type === "rashod" && t.status !== "odbijeno")
+    .reduce((acc, t) => acc + Number(t.amount), 0);
+  const budget = Number(project.budget_amount ?? 0);
+  const pct = budget > 0 ? Math.min(100, Math.round((spent / budget) * 100)) : 0;
+
+  container.innerHTML = `
+    <div class="panel">
+      <div class="portal-head-row" style="margin-bottom:10px">
+        <h3 style="margin:0">Finansije projekta</h3>
+        <button type="button" class="btn btn--ghost btn--sm" id="addProjectTxBtn">+ Transakcija</button>
+      </div>
+      ${
+        budget > 0
+          ? `<p class="text-muted" style="margin:0 0 8px">Potrošeno ${formatCurrency(spent)} / Budžet ${formatCurrency(budget)}</p>
+             <div class="progress" style="height:8px;margin-bottom:14px"><div class="progress__fill" style="width:${pct}%;background:${pct > 100 ? "#b3261e" : "var(--gain)"}"></div></div>`
+          : `<p class="text-muted" style="margin:0 0 14px">Potrošeno ${formatCurrency(spent)} — budžet nije postavljen (uredi projekat da ga dodaš).</p>`
+      }
+      <div id="projectTxList" class="row-list"></div>
+    </div>
+  `;
+
+  document.getElementById("projectTxList").innerHTML = list.length
+    ? list
+        .map(
+          (t) => `
+      <div class="row-item">
+        <span class="row-item__title">${TRANSACTION_TYPE_LABELS[t.type]} · ${escapeHtml(t.category)}</span>
+        <span class="row-item__meta">
+          <span class="status-dot ${TRANSACTION_STATUS_DOT[t.status] ?? ""}">${TRANSACTION_STATUS_LABELS[t.status] ?? t.status}</span>
+          · ${formatCurrency(t.amount)}
+        </span>
+      </div>
+    `,
+        )
+        .join("")
+    : '<p class="empty-state">Još nema transakcija za ovaj projekat.</p>';
+
+  document.getElementById("addProjectTxBtn").addEventListener("click", () => openProjectTxForm(project));
+}
+
+function openExpenseSubmitForm(project) {
+  const backdrop = document.getElementById("modalBackdrop");
+  const modalBody = document.getElementById("modalBody");
+
+  modalBody.innerHTML = `
+    <div class="modal__head">
+      <h3 style="margin:0">Prijavi trošak — ${escapeHtml(project.name)}</h3>
+      <button type="button" class="modal__close" id="mClose">&times;</button>
+    </div>
+    <form id="expenseForm">
+      <label class="field-label">
+        <span>Kategorija (npr. Prevoz, Ketering)</span>
+        <input id="e_category" required>
+      </label>
+      <div class="field-grid">
+        <label class="field-label">
+          <span>Iznos (RSD)</span>
+          <input id="e_amount" type="number" min="0.01" step="0.01" required>
+        </label>
+        <label class="field-label">
+          <span>Datum</span>
+          <input id="e_date" type="date" value="${new Date().toISOString().slice(0, 10)}">
+        </label>
+      </div>
+      <label class="field-label">
+        <span>Za šta je potrošeno</span>
+        <textarea id="e_description" required></textarea>
+      </label>
+      <p class="text-muted" style="font-size:.82rem">Ide na čekanje odobrenja upravi — nećeš moći da vidiš status ovde, ali javiće ti se ako nešto ne štima.</p>
+      <div class="modal__actions">
+        <button type="submit" class="btn btn--primary">Pošalji na odobrenje</button>
+        <button type="button" class="btn btn--ghost" id="mCancel">Otkaži</button>
+      </div>
+    </form>
+  `;
+
+  backdrop.hidden = false;
+  document.getElementById("mClose").addEventListener("click", closeModal);
+  document.getElementById("mCancel").addEventListener("click", closeModal);
+
+  document.getElementById("expenseForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const { error } = await sb.from("transactions").insert({
+      type: "rashod",
+      category: document.getElementById("e_category").value.trim(),
+      amount: Number(document.getElementById("e_amount").value),
+      date: document.getElementById("e_date").value,
+      description: document.getElementById("e_description").value.trim(),
+      status: "na_cekanju",
+      project_id: project.id,
+      created_by: viewer.id,
+    });
+    if (error) return toast(error.message, "error");
+    toast("Poslato na odobrenje.");
+    closeModal();
+  });
+}
+
+function openProjectTxForm(project) {
+  const backdrop = document.getElementById("modalBackdrop");
+  const modalBody = document.getElementById("modalBody");
+
+  modalBody.innerHTML = `
+    <div class="modal__head">
+      <h3 style="margin:0">Nova transakcija — ${escapeHtml(project.name)}</h3>
+      <button type="button" class="modal__close" id="mClose">&times;</button>
+    </div>
+    <form id="pTxForm">
+      <label class="field-label">
+        <span>Tip</span>
+        <select id="pt_type">
+          <option value="rashod" selected>Rashod</option>
+          <option value="prihod">Prihod</option>
+        </select>
+      </label>
+      <label class="field-label">
+        <span>Kategorija</span>
+        <input id="pt_category" list="categoryOptions" required>
+      </label>
+      <div class="field-grid">
+        <label class="field-label">
+          <span>Iznos (RSD)</span>
+          <input id="pt_amount" type="number" min="0.01" step="0.01" required>
+        </label>
+        <label class="field-label">
+          <span>Datum</span>
+          <input id="pt_date" type="date" value="${new Date().toISOString().slice(0, 10)}">
+        </label>
+      </div>
+      <label class="field-label">
+        <span>Status</span>
+        <select id="pt_status">
+          <option value="odobreno" selected>Odobreno</option>
+          <option value="zavrseno">Završeno</option>
+          <option value="na_cekanju">Čeka odobrenje</option>
+        </select>
+      </label>
+      <label class="field-label">
+        <span>Opis</span>
+        <textarea id="pt_description"></textarea>
+      </label>
+      <div class="modal__actions">
+        <button type="submit" class="btn btn--primary">Sačuvaj</button>
+        <button type="button" class="btn btn--ghost" id="mCancel">Otkaži</button>
+      </div>
+    </form>
+  `;
+
+  backdrop.hidden = false;
+  document.getElementById("mClose").addEventListener("click", closeModal);
+  document.getElementById("mCancel").addEventListener("click", closeModal);
+
+  document.getElementById("pTxForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const { error } = await sb.from("transactions").insert({
+      type: document.getElementById("pt_type").value,
+      category: document.getElementById("pt_category").value.trim(),
+      amount: Number(document.getElementById("pt_amount").value),
+      date: document.getElementById("pt_date").value,
+      status: document.getElementById("pt_status").value,
+      description: document.getElementById("pt_description").value.trim() || null,
+      project_id: project.id,
+      created_by: viewer.id,
+    });
+    if (error) return toast(error.message, "error");
+    toast("Sačuvano.");
+    closeModal();
+    renderFinanceSection(project);
+  });
 }
 
 function renderTaskColumns(project) {
@@ -278,35 +477,41 @@ function openProjectForm(project) {
       <button type="button" class="modal__close" id="mClose">&times;</button>
     </div>
     <form id="projectForm">
-      <div class="ffield">
-        <input id="p_name" placeholder=" " value="${escapeHtml(project?.name ?? "")}" required>
-        <label for="p_name">Naziv</label>
-      </div>
-      <div class="ffield">
-        <textarea id="p_description" placeholder=" ">${escapeHtml(project?.description ?? "")}</textarea>
-        <label for="p_description">Opis</label>
+      <label class="field-label">
+        <span>Naziv</span>
+        <input id="p_name" value="${escapeHtml(project?.name ?? "")}" required>
+      </label>
+      <label class="field-label">
+        <span>Opis</span>
+        <textarea id="p_description">${escapeHtml(project?.description ?? "")}</textarea>
+      </label>
+      <div class="field-grid">
+        <label class="field-label">
+          <span>Datum početka</span>
+          <input id="p_start" type="date" value="${project?.start_date ?? ""}">
+        </label>
+        <label class="field-label">
+          <span>Datum završetka</span>
+          <input id="p_deadline" type="date" value="${project?.deadline ?? ""}">
+        </label>
       </div>
       <div class="field-grid">
-        <div class="ffield">
-          <input id="p_start" type="date" value="${project?.start_date ?? ""}">
-          <label for="p_start">Datum početka</label>
-        </div>
-        <div class="ffield">
-          <input id="p_deadline" type="date" value="${project?.deadline ?? ""}">
-          <label for="p_deadline">Datum završetka</label>
-        </div>
+        <label class="field-label">
+          <span>Status</span>
+          <select id="p_status">
+            ${Object.entries(PROJECT_STATUS_LABELS)
+              .map(
+                ([val, label]) =>
+                  `<option value="${val}" ${project?.status === val ? "selected" : ""}>${label}</option>`,
+              )
+              .join("")}
+          </select>
+        </label>
+        <label class="field-label">
+          <span>Budžet (RSD, opciono)</span>
+          <input id="p_budget" type="number" min="0" step="1" value="${project?.budget_amount ?? ""}">
+        </label>
       </div>
-      <label class="field-label">
-        <span>Status</span>
-        <select id="p_status">
-          ${Object.entries(PROJECT_STATUS_LABELS)
-            .map(
-              ([val, label]) =>
-                `<option value="${val}" ${project?.status === val ? "selected" : ""}>${label}</option>`,
-            )
-            .join("")}
-        </select>
-      </label>
       <h4 style="margin:14px 0 8px">Članovi na projektu</h4>
       <div class="tag-picker" id="memberPicker">
         ${activeProfiles
@@ -368,6 +573,9 @@ function openProjectForm(project) {
       start_date: document.getElementById("p_start").value || null,
       deadline: document.getElementById("p_deadline").value || null,
       status: document.getElementById("p_status").value,
+      budget_amount: document.getElementById("p_budget").value
+        ? Number(document.getElementById("p_budget").value)
+        : null,
     };
 
     let savedId = project?.id;
@@ -425,14 +633,14 @@ function openTaskForm(project) {
       <button type="button" class="modal__close" id="mClose">&times;</button>
     </div>
     <form id="taskForm">
-      <div class="ffield">
-        <input id="t_title" placeholder=" " required>
-        <label for="t_title">Naziv</label>
-      </div>
-      <div class="ffield">
-        <textarea id="t_description" placeholder=" "></textarea>
-        <label for="t_description">Opis (opciono)</label>
-      </div>
+      <label class="field-label">
+        <span>Naziv</span>
+        <input id="t_title" required>
+      </label>
+      <label class="field-label">
+        <span>Opis (opciono)</span>
+        <textarea id="t_description"></textarea>
+      </label>
       <div class="field-grid">
         <label class="field-label">
           <span>Zadužen</span>
@@ -441,10 +649,10 @@ function openTaskForm(project) {
             ${assignable.map((p) => `<option value="${p.id}">${escapeHtml(p.full_name || p.email)}</option>`).join("")}
           </select>
         </label>
-        <div class="ffield">
+        <label class="field-label">
+          <span>Rok</span>
           <input id="t_due" type="date">
-          <label for="t_due">Rok</label>
-        </div>
+        </label>
       </div>
       <div class="modal__actions">
         <button type="submit" class="btn btn--primary">Dodaj zadatak</button>

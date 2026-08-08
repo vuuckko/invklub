@@ -1,17 +1,65 @@
 /* =========================================================
    Portal za članove — nadovezuje se na ../styles.css
    (boje, .btn, .ffield/.cform, .eyebrow, .h-lead, .ledger* su
-   odatle — namerno se ne dupliraju ovde). Font je namerno
-   drugačiji od glavnog sajta: samo Archivo, bez Manrope-a, na
-   normalnoj (ne raširenoj) širini za telo teksta — jedna
-   porodica slova umesto tipičnog "heading + body" para fontova.
+   odatle — namerno se ne dupliraju ovde).
+
+   Art direction: "živi godišnji izveštaj" — portal nije
+   dashboard nego institucionalni dokument koji klub piše sam
+   od sebe dok radi. Otud hijerarhija linija umesto kutija, i
+   jedna fleksibilna tipografska porodica (Google Sans Flex) čija
+   promenljiva debljina/optički razmer nosi hijerarhiju umesto
+   mešanja više fontova.
+
+   ZABRANJENO, potvrđeno u više krugova korisničkog fidbeka —
+   ne uvoditi nijedno od ovoga ponovo, ni kao "tiši" alternativni
+   tretman:
+     - monospace bilo gde
+     - VERZAL + razmaknuta slova na labelama
+     - numerisane sekcije (01, 02...)
+     - KURZIV kao poseban "glas" za labele — pokušano, odbijeno
+       rečju "iskrivio" (isto što i "krive forme" kod Fraunces-a
+       ranije — nagnuto pismo se čita kao isti AI-tik kao i
+       verzal/mono, ne kao rešenje za njega)
+   Font je prošao PET rundi (Archivo → IBM Plex Serif+Mono →
+   IBM Plex Serif sam → Bodoni Moda → Google Sans Flex, korisnik
+   ga je izričito imenovao). Ne menjati opet bez izričitog
+   zahteva — vidi [[invklub-art-direction]] za punu istoriju.
+   Sekundarni tekst (labele, footnote-ovi, hint-ovi) je prosto
+   manji i sivkastiji, uspravan, sentence case. Nema posebnog
+   tretmana — to je namerno. Traženje "pametnog sistema" za
+   svaku sitnicu je samo po sebi template-tik.
    ========================================================= */
 
 body{
-  --sans:'Archivo',system-ui,-apple-system,'Segoe UI',sans-serif;
-  --mono:'Archivo',system-ui,-apple-system,'Segoe UI',sans-serif;
+  /* Jedna varijabilna porodica za oba glasa — Google Sans Flex nosi i
+     wght (400-700) i opsz (6-144) ose iz jednog fajla, tačno isti pristup
+     koji Google koristi u sopstvenim proizvodima umesto uparivanja
+     serif+sans. --disp/--sans i dalje postoje kao odvojene promenljive
+     (mnogo pravila u ovom fajlu ih već referencira po imenu), ali sad
+     pokazuju na istu familiju — hijerarhiju nosi font-weight po pravilu,
+     ne različit font. */
+  --disp:'Google Sans Flex',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --sans:'Google Sans Flex',system-ui,-apple-system,'Segoe UI',sans-serif;
+  /* Alias only, for shared classes inherited from ../styles.css that still
+     reference var(--mono) — resolves to the plain upright sans, never a
+     monospace or an italic. */
+  --mono:var(--sans);
   font-family:var(--sans);
-  font-variation-settings:'wdth' 100;
+  /* Lets the browser pick the opsz instance per rendered size — crisp at
+     both the huge .statement__figure numerals and small table text from
+     the one variable file. Do NOT set font-variation-settings explicitly
+     anywhere in this file: an explicit value overrides the automatic
+     font-weight/font-optical-sizing → wght/opsz mapping per spec, which
+     would silently freeze every heading at one weight regardless of the
+     font-weight declared on it. (This bit us with the old Archivo 'wdth'
+     neutralisation — removed for that exact reason.) */
+  font-optical-sizing:auto;
+  /* Figures line up in columns portal-wide, not only inside .statement. */
+  font-variant-numeric:tabular-nums;
+}
+.portal-app .h-lead,
+.portal-app h1,.portal-app h2,.portal-app h3,.portal-app h4{
+  letter-spacing:-.01em;
 }
 
 .portal-app{
@@ -31,49 +79,59 @@ body{
   padding:22px 16px;
   position:sticky;top:0;height:100vh;
 }
-.sidebar__brand{display:flex;align-items:center;gap:10px;padding:8px;margin-bottom:28px}
+/* Masthead — rule underneath, the way a title block sits above a
+   contents list. */
+.sidebar__brand{
+  display:flex;align-items:center;gap:10px;padding:2px 4px 18px;margin-bottom:8px;
+  border-bottom:1px solid rgba(255,255,255,.14);
+}
 .sidebar__brand .ik-mark{width:34px;height:34px;flex:none;color:#fff}
 .sidebar__brand .ik-mark .arc{stroke:var(--powder)}
-.sidebar__brand span{font-family:var(--disp);font-weight:700;font-size:.92rem;line-height:1.2;color:#fff}
-.sidebar__brand small{display:block;font-family:var(--sans);font-weight:400;font-size:.64rem;color:var(--powder);opacity:.65;text-transform:uppercase;letter-spacing:.1em;margin-top:3px}
+.sidebar__brand span{font-family:var(--disp);font-weight:600;font-size:.95rem;line-height:1.2;color:#fff;letter-spacing:-.01em}
+.sidebar__brand small{display:block;font-weight:400;font-size:.74rem;color:var(--powder);opacity:.65;margin-top:2px}
 
-.sidebar__nav{display:flex;flex-direction:column;gap:2px}
+/* Nav as a contents page, not app chrome. The rounded active pill + filled
+   background + left accent border it used to have is the Stripe/Linear
+   signature — the single most template-looking thing on the screen. A
+   contents list marks its current entry typographically instead: hairline
+   rules between entries, and the active row stated in white with a rule
+   under the label. The 01-06 folio numbers are gone with it — numbered
+   nav is its own template tic (every Framer/Webflow theme ships it). */
+.sidebar__nav{display:flex;flex-direction:column;gap:0}
 .sidebar__nav a{
-  display:flex;align-items:center;gap:10px;
-  padding:10px 12px;border-radius:9px;
-  color:var(--powder-soft);font-weight:600;font-size:.88rem;
-  border-left:2px solid transparent;
-  transition:background .15s ease,color .15s ease;
+  display:flex;align-items:center;gap:11px;padding:11px 4px;
+  color:var(--powder-soft);font-weight:500;font-size:.92rem;
+  border-top:1px solid rgba(255,255,255,.07);
+  transition:color .15s ease;
 }
-.sidebar__nav a:hover{background:rgba(255,255,255,.06);color:#fff}
-.sidebar__nav a.is-active{background:rgba(255,255,255,.08);color:#fff;border-left-color:var(--accent)}
-.sidebar__nav-index{
-  font-size:.7rem;font-weight:700;letter-spacing:.02em;
-  color:var(--powder);opacity:.5;flex:none;
-}
-.sidebar__nav a:hover .sidebar__nav-index,
-.sidebar__nav a.is-active .sidebar__nav-index{color:var(--accent);opacity:1}
+.sidebar__nav a:first-child{border-top:0}
+.sidebar__nav a:hover{color:#fff}
+.sidebar__nav a.is-active{color:#fff;font-weight:600}
+/* Icons sit at half opacity like the old folio numbers did — full white only
+   for the active page, so they read as wayfinding, not decoration. */
+.sidebar__nav a svg{flex:none;opacity:.55;transition:opacity .15s ease}
+.sidebar__nav a:hover svg{opacity:.85}
+.sidebar__nav a.is-active svg{opacity:1}
+.sidebar__nav-label{display:inline-block;padding-bottom:2px}
+.sidebar__nav a.is-active .sidebar__nav-label{box-shadow:0 1px 0 var(--accent)}
 
-.sidebar__bottom .sidebar__nav{margin-bottom:10px}
-.sidebar__user{border-top:1px solid rgba(255,255,255,.1);padding-top:14px}
-.sidebar__name{margin:0 0 6px;color:#fff;font-weight:600;font-size:.86rem;padding:0 4px;
+.sidebar__bottom .sidebar__nav{margin-bottom:14px}
+.sidebar__user{border-top:1px solid rgba(255,255,255,.14);padding-top:14px}
+.sidebar__name{margin:0 0 3px;color:#fff;font-weight:600;font-size:.9rem;padding:0 4px;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sidebar__role{margin:0 0 10px;padding:0 4px}
+.sidebar__role{margin:0 0 12px;padding:0 4px}
+.sidebar__role .badge{
+  background:none;padding:0;font-size:.82rem;color:var(--powder);opacity:.75;font-weight:400;
+}
 .sidebar__signout{
-  background:none;border:0;color:var(--powder);opacity:.7;font-size:.78rem;font-weight:600;
-  cursor:pointer;padding:4px;letter-spacing:.02em;
+  background:none;border:0;color:var(--powder);opacity:.75;
+  font-family:var(--sans);font-size:.84rem;font-weight:500;
+  cursor:pointer;padding:4px;
 }
 .sidebar__signout:hover{opacity:1;color:#fff;text-decoration:underline}
 
 /* ---------- Main content ---------- */
-.portal-main{flex:1;min-width:0;padding:clamp(24px,3.5vw,44px);position:relative}
-.cal-shortcut{
-  position:absolute;top:clamp(24px,3.5vw,44px);right:clamp(24px,3.5vw,44px);
-  width:38px;height:38px;border-radius:50%;background:#fff;border:1.5px solid var(--line);
-  display:flex;align-items:center;justify-content:center;color:var(--ink-soft);
-  transition:border-color .15s ease,color .15s ease;
-}
-.cal-shortcut:hover{border-color:var(--accent);color:var(--accent)}
+.portal-main{flex:1;min-width:0;padding:clamp(24px,3.5vw,44px)}
 .portal-head{margin-bottom:26px}
 .portal-head .eyebrow{margin-bottom:6px}
 .portal-head .h-lead{font-size:clamp(1.5rem,2.4vw,2.05rem);margin:0 0 4px}
@@ -81,10 +139,55 @@ body{
 .portal-head-row{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:26px}
 .portal-head-row .portal-head{margin-bottom:0}
 
+/* ---------- Buttons ----------
+   ../styles.css draws .btn as a full pill (border-radius:999px) with a
+   soft coloured glow shadow and a hover lift (translateY) in --accent, a
+   bright sky-blue (#1e77c4) that is also, near-verbatim, the default
+   "primary" blue of Bootstrap and countless generated templates. Pill +
+   glow + lift + that exact blue is a very recognisable generic AI/SaaS
+   signature — and it would be the one floating, shadowed, off-palette
+   element on a page that is otherwise flat ink-on-paper everywhere else
+   (statement, cards, sidebar all sit flush with no shadow, and the only
+   large fills anywhere are the navy sidebar/hero rules). Overridden here
+   rather than edited in styles.css because that file is shared with the
+   club's separate public marketing site, which nobody asked to change.
+
+   Primary is now --navy-900, the same ink the sidebar and every
+   institutional rule in .statement already use — a button should look
+   like it belongs to this document, not like a CTA borrowed from a
+   marketing landing page. Padding/font-size are both down a notch too:
+   the old size read as a big marketing "buy now" button, oversized next
+   to the restrained scale of everything around it (badges, status dots,
+   table text). --r-sm matches the corner radius already used on
+   task-card/cal-nav buttons elsewhere in this file.
+
+   No selector scoping needed: portal.css only ever loads on portal pages
+   and login.html, so a bare .btn override can't leak into the other site,
+   and it correctly reaches buttons inside .modal too (which sits outside
+   .portal-app in the DOM, so a scoped .portal-app .btn would have missed
+   every button in every form). */
+.btn{
+  padding:.6em 1.1em;
+  border-radius:var(--r-sm);
+  font-size:.88rem;
+  font-weight:600;
+  box-shadow:none;
+}
+.btn:hover{
+  transform:none;
+}
+.btn--primary{
+  background:var(--navy-900);
+  box-shadow:none;
+}
+.btn--primary:hover{
+  background:var(--navy-700);
+}
+
 /* ---------- Badges ---------- */
 .badge{
-  display:inline-flex;align-items:center;padding:3px 10px;border-radius:6px;
-  font-size:.7rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;
+  display:inline-flex;align-items:center;padding:3px 9px;border-radius:5px;
+  font-size:.76rem;font-weight:600;
   background:rgba(255,255,255,.1);color:var(--powder-soft);
 }
 .badge--light{background:var(--mist);color:var(--navy-800)}
@@ -121,10 +224,156 @@ body{
 .panel{background:#fff;border:1px solid var(--line);border-radius:var(--r-md);padding:22px}
 .panel + .panel{margin-top:16px}
 .panel h2,.panel h3{font-family:var(--disp);font-weight:700;color:var(--ink);margin:0 0 14px;font-size:1.05rem}
-.panel__eyebrow{font-family:var(--mono);font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin:0 0 6px;font-weight:600}
+.panel__eyebrow{font-size:.85rem;color:var(--accent);margin:0 0 6px;font-weight:500}
+
+/* ../styles.css sets .eyebrow in caps with wide tracking for the marketing
+   site. Neutralise it here — the portal keeps that voice nowhere. */
+.portal-app .eyebrow,.login-side .eyebrow{
+  font-weight:500;text-transform:none;letter-spacing:0;font-size:.9rem;
+}
 
 .dash-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;align-items:start}
 @media (max-width:920px){.dash-grid{grid-template-columns:1fr}}
+
+/* =========================================================
+   Statement / ledger system — the "financial statement, not
+   admin dashboard" language. No boxes: hairline dividers,
+   mono numbers, one dominant figure per screen. This is the
+   default for summary/overview content; .panel is reserved for
+   modals and small self-contained groupings (see above).
+   ========================================================= */
+
+/* =========================================================
+   STATEMENT BLOCK — "živi godišnji izveštaj" art direction.
+   The page hero on the dashboard + Finansije.
+
+   Two voices, deliberately. Archivo carries the editorial /
+   institutional side (folio line, the one big figure); --mono
+   carries the machine / ledger side (labels, the reconciliation
+   column). A statement is legible as a statement precisely
+   because set text and tabular data speak differently — see the
+   --mono note at the top of this file.
+   ========================================================= */
+
+.statement{
+  display:grid;grid-template-columns:1.25fr .9fr;gap:clamp(26px,5vw,64px);
+  padding-block:30px 26px;
+  border-top:2px solid var(--navy-900);
+  border-bottom:1px solid var(--line);
+  margin-bottom:8px;
+  /* Every figure in this block is a column figure. */
+  font-variant-numeric:tabular-nums;
+  font-feature-settings:'tnum' 1;
+}
+@media (max-width:820px){.statement{grid-template-columns:1fr;gap:24px}}
+
+/* Statement heading — plain words, no folio number. */
+.statement__folio{
+  font-family:var(--disp);font-size:1.02rem;font-weight:600;
+  color:var(--ink);margin:0 0 18px;display:flex;gap:14px;align-items:baseline;
+}
+.statement__folio span{
+  margin-left:auto;font-weight:400;font-size:.88rem;color:var(--ink-soft);
+}
+
+.statement__figure{
+  font-family:var(--disp);font-weight:600;
+  font-size:clamp(2.5rem,5.4vw,4rem);line-height:.94;letter-spacing:-.025em;
+  color:var(--ink);display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;
+}
+.statement__figure.is-negative{color:#b3261e}
+.statement__unit{
+  font-family:var(--sans);font-size:.92rem;
+  font-weight:500;color:var(--ink-soft);
+}
+.statement__note{margin:16px 0 0;color:var(--ink-soft);font-size:.9rem;max-width:42ch}
+.statement__flag{
+  display:inline-block;margin-top:16px;font-family:var(--sans);
+  font-size:.88rem;font-weight:500;
+  color:var(--accent);border-bottom:1px solid currentColor;padding-bottom:2px;
+}
+.statement__flag:hover{color:var(--navy-900)}
+
+/* Reconciliation column. Accounting rule hierarchy does the work here:
+   hairline = row, single heavy rule = subtotal, double rule = bottom line.
+   That double rule above the total is the oldest convention in bookkeeping
+   and it is what makes the block read as a document instead of a widget. */
+.statement__calc{margin:0;align-self:end;font-family:var(--sans);font-size:.9rem}
+.calc-row{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding-block:7px}
+.calc-row dt{margin:0;color:var(--ink-soft)}
+.calc-row dd{margin:0;color:var(--ink);font-weight:600}
+.calc-row--sub{border-top:1px solid var(--ink);margin-top:5px;padding-top:9px}
+.calc-row--sub dt{color:var(--ink)}
+.calc-row--total{border-top:3px double var(--navy-900);margin-top:5px;padding-top:10px}
+.calc-row--total dt{color:var(--ink);font-weight:600}
+.calc-row--total dd{font-size:1.02rem;font-weight:700}
+.calc-row--aside{margin-top:16px;padding-top:11px;border-top:1px dotted var(--line)}
+.calc-row--aside dd{color:var(--gain)}
+.calc-row__hint{
+  display:block;font-size:.8rem;color:var(--ink-soft);opacity:.85;margin-top:2px;font-weight:400;
+}
+
+/* Annual target, demoted. It is a legitimate thing for a sponsorship-funded
+   club to track, but it is an aspiration someone typed in — it belongs as a
+   footnote under the real position, not as the headline figure. Lives on
+   Finansije only; the dashboard drops it entirely. */
+.statement__goal{
+  margin-top:24px;padding-top:14px;border-top:1px solid var(--line);
+  font-family:var(--sans);max-width:36ch;
+}
+.statement__goal-head{
+  display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+  font-size:.88rem;color:var(--ink-soft);
+}
+.statement__goal-head b{color:var(--ink);font-weight:600}
+.statement__goal-track{height:2px;background:var(--mist);margin:9px 0 7px}
+.statement__goal-track span{display:block;height:100%;background:var(--navy-900)}
+.statement__goal-foot{
+  display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+  font-size:.84rem;color:var(--ink-soft);
+}
+.statement__goal-foot button{
+  background:none;border:0;padding:0;font:inherit;color:var(--accent);
+  cursor:pointer;font-weight:500;
+}
+.statement__goal-foot button:hover{text-decoration:underline}
+
+.statement-section{padding-block:26px}
+.statement-section + .statement-section{border-top:1px solid var(--line)}
+.statement-section__head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;gap:12px;flex-wrap:wrap}
+.statement-section__head h2{font-family:var(--disp);font-weight:600;font-size:1.14rem;margin:0}
+.statement-section__head .count{font-family:var(--sans);color:var(--ink-soft);font-size:.88rem}
+.statement-section__eyebrow{font-size:.86rem;color:var(--accent);margin:0 0 4px;font-weight:500}
+
+.statement-columns{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+@media (max-width:820px){.statement-columns{grid-template-columns:1fr}}
+
+.ledger-rows{display:flex;flex-direction:column}
+.ledger-row{
+  display:flex;justify-content:space-between;align-items:center;gap:16px;
+  padding-block:14px;border-top:1px solid var(--line);
+}
+.ledger-row:first-child{border-top:none}
+a.ledger-row{color:inherit}
+a.ledger-row:hover .ledger-row__name{color:var(--accent)}
+.ledger-row__name{font-weight:700;color:var(--ink);font-size:.98rem;display:block;transition:color .15s ease}
+.ledger-row__meta{color:var(--ink-soft);font-size:.82rem}
+.ledger-row__value{text-align:right;font-family:var(--sans);flex:none}
+.ledger-row__pct{font-weight:700;color:var(--ink);display:block}
+.ledger-row__sub{color:var(--ink-soft);font-size:.78rem}
+.ledger-row__bar{width:110px;height:3px;background:var(--mist);margin-top:6px}
+.ledger-row__bar span{display:block;height:100%;background:var(--gain)}
+
+/* Compact 2-column breakdown rows (sector composition, partner list on
+   dashboard) — quieter than .ledger-row since it's secondary content. */
+.mini-rows{display:flex;flex-direction:column}
+.mini-row{display:flex;align-items:center;gap:14px;padding-block:10px;border-top:1px solid var(--line);font-size:.88rem}
+.mini-row:first-child{border-top:none}
+.mini-row__name{flex:none;width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
+.mini-row__bar{flex:1;height:3px;background:var(--mist)}
+.mini-row__bar span{display:block;height:100%;background:var(--accent)}
+.mini-row__count{font-family:var(--sans);font-weight:700;width:22px;text-align:right;flex:none}
+.mini-row--split{justify-content:space-between}
 
 /* ---------- Bar chart (sektor breakdown) ---------- */
 .barchart{display:flex;flex-direction:column;gap:11px}
@@ -132,7 +381,7 @@ body{
 .barchart__label{color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .barchart__track{display:block;background:var(--mist);height:6px;overflow:hidden}
 .barchart__fill{display:block;background:var(--accent);height:100%}
-.barchart__count{font-family:var(--mono);color:var(--ink);font-weight:600;text-align:right}
+.barchart__count{font-family:var(--sans);color:var(--ink);font-weight:600;text-align:right}
 
 /* ---------- Progress bar ---------- */
 .progress{background:var(--mist);height:5px;overflow:hidden}
@@ -146,15 +395,15 @@ body{
 }
 .row-item:last-child{border-bottom:none}
 .row-item__title{font-weight:600;color:var(--ink);font-size:.92rem}
-.row-item__meta{font-size:.78rem;color:var(--ink-soft);font-family:var(--mono)}
+.row-item__meta{font-size:.78rem;color:var(--ink-soft);font-family:var(--sans)}
 
 /* ---------- Tables ---------- */
 .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-md);background:#fff}
 table.dtable{width:100%;border-collapse:collapse;font-size:.88rem}
 table.dtable th{
-  text-align:left;padding:12px 16px;background:var(--mist);color:var(--ink-soft);
-  font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700;
-  white-space:nowrap;font-family:var(--mono);
+  text-align:left;padding:11px 16px;background:var(--mist);color:var(--ink-soft);
+  font-weight:600;font-size:.8rem;
+  white-space:nowrap;
 }
 table.dtable td{padding:12px 16px;border-top:1px solid var(--line);vertical-align:middle}
 table.dtable tbody tr:hover{background:var(--paper)}
@@ -185,27 +434,41 @@ table.dtable td.num{text-align:right}
 .tag-picker__option.is-selected{border-color:var(--accent);background:var(--accent);color:#fff}
 .tag-picker__option:disabled{cursor:default;opacity:.7}
 
-/* ---------- Form fields ---------- */
-/* Selects use a plain label-above pattern (NOT .ffield's floating overlay —
-   that trick only repositions the label for input/textarea via the
-   :not(:placeholder-shown) selector in styles.css; on a <select> the label
-   never moves, so it sits on top of the control and blocks clicks). */
-.field-label{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+/* ---------- Form fields ----------
+   Portal-wide input style: label above (mono, uppercase — same voice as
+   .eyebrow/.panel__eyebrow elsewhere), field itself is an underline, not a
+   filled rounded box. Ties forms into the same hairline-divider language as
+   the ledger rows instead of importing the marketing site's boxed .cform
+   join-form look wholesale. One pattern for input/select/textarea — no
+   floating-label mechanic, so there's no risk of the old select-overlay bug
+   recurring on a future field. */
+.field-label{display:flex;flex-direction:column;gap:6px;margin-bottom:18px}
 .field-label > span{
-  font-family:var(--mono);font-size:.68rem;text-transform:uppercase;
-  letter-spacing:.06em;color:var(--ink-soft);font-weight:600;
+  font-family:var(--sans);font-size:.86rem;
+  color:var(--ink-soft);font-weight:500;
 }
-.field-label select,.field-label input{
-  border:1.5px solid var(--line);border-radius:var(--r-sm);padding:10px 12px;
-  font:inherit;color:var(--ink);background:#fff;width:100%;
+.field-label select,.field-label input,.field-label textarea{
+  border:0;border-bottom:1.5px solid var(--line);border-radius:0;
+  padding:6px 2px 9px;font:inherit;font-size:.95rem;color:var(--ink);
+  background:transparent;width:100%;transition:border-color .15s ease;
 }
-.field-label select:focus,.field-label input:focus{outline:none;border-color:var(--accent)}
-.field-label select:disabled,.field-label input:disabled{color:var(--ink-soft);background:var(--paper)}
+.field-label textarea{resize:vertical;min-height:76px;padding-top:8px}
+.field-label select{
+  appearance:none;cursor:pointer;padding-right:20px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2348657c' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 2px center;background-size:14px;
+}
+.field-label select:focus,.field-label input:focus,.field-label textarea:focus{
+  outline:none;border-bottom-color:var(--accent);
+}
+.field-label select:disabled,.field-label input:disabled,.field-label textarea:disabled{
+  color:var(--ink-soft);border-bottom-style:dotted;
+}
 
 /* ---------- Kanban-ish task list ---------- */
 .task-columns{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 @media (max-width:760px){.task-columns{grid-template-columns:1fr}}
-.task-col h4{margin:0 0 10px;font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);font-family:var(--mono)}
+.task-col h4{margin:0 0 10px;font-size:.8rem;color:var(--ink-soft);font-weight:600}
 .task-card{
   background:#fff;border:1px solid var(--line);border-radius:var(--r-sm);
   padding:12px 14px;margin-bottom:10px;
@@ -213,22 +476,6 @@ table.dtable td.num{text-align:right}
 .task-card__title{font-weight:600;font-size:.88rem;color:var(--ink);margin:0 0 6px}
 .task-card__meta{font-size:.76rem;color:var(--ink-soft);display:flex;justify-content:space-between;align-items:center;gap:8px}
 .task-card select{font-size:.76rem;border:1px solid var(--line);border-radius:6px;padding:4px 6px;background:#fff;width:100%}
-
-/* ---------- Project list (few items, editorial detail-forward rows) ---------- */
-.project-list{display:flex;flex-direction:column;gap:10px}
-.project-row{
-  display:block;background:#fff;border:1px solid var(--line);border-left:3px solid var(--accent);
-  border-radius:var(--r-sm);padding:18px 20px;
-  transition:border-color .15s ease,background .15s ease;
-}
-.project-row:hover{background:var(--paper);border-left-color:var(--accent-600)}
-.project-row.is-done{border-left-color:var(--gain)}
-.project-row.is-paused{border-left-color:var(--ink-soft)}
-.project-row__head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:6px;flex-wrap:wrap}
-.project-row__name{font-family:var(--disp);font-weight:700;font-size:1.15rem;color:var(--ink)}
-.project-row__desc{color:var(--ink-soft);margin:4px 0 12px;max-width:70ch}
-.project-row__meta{display:flex;gap:18px;flex-wrap:wrap;font-size:.8rem;color:var(--ink-soft);align-items:center}
-.project-row__meta strong{color:var(--ink);font-weight:600}
 
 .member-chip{
   display:inline-flex;align-items:center;gap:6px;background:var(--mist);color:var(--navy-800);
@@ -242,12 +489,113 @@ table.dtable td.num{text-align:right}
   display:inline-flex;align-items:center;gap:6px;background:var(--gain-soft);color:var(--gain);
   border-radius:999px;padding:5px 12px;font-size:.78rem;font-weight:600;
 }
-.back-link{display:inline-block;margin-bottom:16px;color:var(--accent);font-weight:600;font-size:.88rem}
+
+/* ---------- Label:value line — a lighter dt/dd pattern than .calc-row for
+   use inside cards, no accounting rules. ---------- */
+.kv-row{display:flex;justify-content:space-between;gap:10px;font-size:.85rem;padding:2px 0}
+.kv-row dt{margin:0;color:var(--ink-soft)}
+.kv-row dd{margin:0;color:var(--ink);font-weight:600;text-align:right}
+
+/* ---------- Member cards (Baza članova) — replaces the old full-width
+   table. A wide table forces every row into one shape regardless of how
+   much a member actually has filled in (sector/position/status), which is
+   why it read as a dense, hard-to-scan strip. Cards let each member take
+   only the space their own data needs and scan left-to-right, top-to-
+   bottom like a contact sheet instead of a spreadsheet. ---------- */
+.member-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.member-card{
+  background:#fff;border:1px solid var(--line);border-radius:var(--r-md);
+  padding:16px;cursor:pointer;transition:border-color .15s ease;
+  display:flex;flex-direction:column;gap:10px;
+}
+.member-card:hover{border-color:var(--accent)}
+.member-card__top{display:flex;align-items:center;gap:10px}
+.member-card__avatar{
+  width:38px;height:38px;border-radius:50%;background:var(--accent);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.86rem;flex:none;
+}
+.member-card__name-wrap{min-width:0}
+.member-card__name{
+  font-weight:700;color:var(--ink);font-size:.92rem;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.member-card__meta{font-size:.8rem;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.member-card__foot{
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
+  padding-top:10px;border-top:1px solid var(--line);
+}
+.member-card__email{font-size:.78rem;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+
+/* ---------- Partner cards (Partneri) — same "cards over a wide table"
+   reasoning as members, but partners carry more heterogeneous data
+   (pipeline stage, contact cadence, money), so the card is denser and
+   grouped into hairline-divided blocks rather than one flat list. ---------- */
+.partner-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+.partner-card{
+  background:#fff;border:1px solid var(--line);border-radius:var(--r-md);
+  padding:18px;cursor:pointer;transition:border-color .15s ease;
+}
+.partner-card:hover{border-color:var(--accent)}
+.partner-card__name{font-weight:700;color:var(--ink);font-size:1rem;margin:0}
+
+/* Pipeline — reuses the .progress bar's segmented-fill language rather than
+   inventing a new "CRM stepper" widget, so it reads as part of this system
+   instead of an imported component. Neuspešno is a dead end, not a
+   position on the forward pipeline (Lead → Kontaktiran → Pregovori →
+   Partner), so it renders as a separate warn state instead of a 5th
+   segment — a relationship that failed didn't "complete more steps" than
+   one that's merely earlier in negotiation. */
+.partner-pipeline{margin:12px 0 2px}
+.partner-pipeline__track{display:flex;gap:3px}
+.partner-pipeline__seg{flex:1;height:4px;border-radius:2px;background:var(--mist)}
+.partner-pipeline__seg.is-filled{background:var(--accent)}
+.partner-pipeline__stage{margin-top:7px;font-size:.82rem;font-weight:600;color:var(--accent)}
+.partner-pipeline--lost .partner-pipeline__stage{color:#b3261e}
+
+.partner-card__block{margin-top:13px;padding-top:12px;border-top:1px solid var(--line)}
+.partner-card__stats{display:flex;gap:22px}
+.partner-card__stat b{display:block;font-family:var(--disp);font-size:1.25rem;font-weight:600;color:var(--ink);line-height:1.1}
+.partner-card__stat span{font-size:.76rem;color:var(--ink-soft)}
+.partner-card__label{font-size:.78rem;color:var(--ink-soft);margin:0}
+.partner-card__foot{margin-top:12px;font-size:.76rem;color:var(--ink-soft)}
+
+/* ---------- Documents (Dokumenti, admin-only) ---------- */
+.doc-group + .doc-group{margin-top:16px}
+.doc-group__head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:2px}
+.doc-group__head h3{margin:0}
+/* align-items:flex-start, not center — .doc-row__meta wraps to two lines on
+   narrow screens (extension badge + size + uploader + date is long), and
+   centering against that variable height drifted the icon down to the
+   middle of the whole row instead of sitting next to the filename. */
+.doc-row{display:flex;align-items:flex-start;gap:12px;padding:11px 2px;border-top:1px solid var(--line)}
+.doc-row:first-child{border-top:none}
+.doc-row__icon{flex:none;color:var(--accent);margin-top:2px}
+.doc-row__body{flex:1;min-width:0}
+.doc-row__name{font-weight:600;color:var(--ink);font-size:.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.doc-row__meta{font-size:.78rem;color:var(--ink-soft);margin-top:3px;display:flex;align-items:center;flex-wrap:wrap;row-gap:4px}
+.doc-row__ext{
+  font-family:var(--sans);font-size:.66rem;font-weight:700;color:var(--ink-soft);
+  background:var(--mist);border-radius:4px;padding:2px 5px;margin-right:6px;
+}
+.doc-row__actions{display:flex;gap:2px;flex:none;margin-top:1px}
+.doc-row__actions button{
+  background:none;border:0;color:var(--ink-soft);cursor:pointer;padding:6px;
+  border-radius:6px;display:flex;transition:background .15s ease,color .15s ease;
+}
+.doc-row__actions button:hover{background:var(--mist);color:var(--accent)}
+.doc-row__actions button.is-danger:hover{background:#fdecea;color:#b3261e}
+
+/* ../styles.css sets .back-link in caps with tracking — reset it here. */
+.portal-main .back-link{
+  display:inline-block;margin-bottom:16px;color:var(--accent);
+  font-family:var(--sans);font-weight:500;font-size:.9rem;
+  text-transform:none;letter-spacing:0;
+}
 .back-link:hover{text-decoration:underline}
 
 .detail-meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;margin:16px 0 4px}
 .detail-meta-item{border-top:2px solid var(--line);padding-top:8px}
-.detail-meta-item__label{display:block;font-family:var(--mono);font-size:.66rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);margin-bottom:4px}
+.detail-meta-item__label{display:block;font-size:.78rem;color:var(--ink-soft);margin-bottom:3px}
 .detail-meta-item__value{font-weight:700;color:var(--ink);font-family:var(--disp)}
 
 /* ---------- Modal ---------- */
@@ -276,15 +624,16 @@ table.dtable td.num{text-align:right}
 
 /* ---------- Calendar ---------- */
 .cal-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 12px;margin-bottom:18px}
-.cal-head__title{font-family:var(--disp);font-weight:700;font-size:1.3rem;color:var(--ink);text-align:center}
+.cal-head__title{font-family:var(--disp);font-weight:700;font-size:1.3rem;color:var(--ink);text-align:center;min-width:11ch}
 .cal-nav{display:flex;align-items:center;gap:4px}
+.cal-nav--center{gap:14px}
 .cal-nav button{
   border:1.5px solid var(--line);background:#fff;border-radius:var(--r-sm);
   width:34px;height:34px;font-size:1rem;cursor:pointer;color:var(--ink);
 }
 .cal-nav button:hover{border-color:var(--accent);color:var(--accent)}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;background:var(--line)}
-.cal-weekday{background:var(--mist);color:var(--ink-soft);font-family:var(--mono);font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;text-align:center;padding:10px 4px}
+.cal-weekday{background:var(--mist);color:var(--ink-soft);font-weight:600;font-size:.78rem;text-align:center;padding:9px 4px}
 .cal-day{
   background:#fff;min-height:96px;padding:8px;position:relative;
   display:flex;flex-direction:column;gap:4px;cursor:pointer;
@@ -297,13 +646,14 @@ table.dtable td.num{text-align:right}
   background:var(--accent);color:#fff;border-radius:50%;
   width:24px;height:24px;display:flex;align-items:center;justify-content:center;
 }
-.cal-day__num{font-family:var(--mono);font-size:.82rem;color:var(--ink);font-weight:600}
+.cal-day__num{font-family:var(--sans);font-size:.82rem;color:var(--ink);font-weight:600}
 .cal-day__dot{
   font-size:.68rem;background:var(--mist);color:var(--navy-800);border-radius:5px;
   padding:2px 6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 .cal-day__dot--task{background:var(--accent);color:#fff}
 .cal-day__dot--project{background:var(--gain-soft);color:var(--gain)}
+.cal-day__dot--payment{background:#fff3d6;color:#8a5a00}
 .cal-day__more{font-size:.66rem;color:var(--ink-soft)}
 
 /* ---------- Mobile sidebar collapse ---------- */
@@ -313,9 +663,40 @@ table.dtable td.num{text-align:right}
     width:100%;height:auto;position:sticky;top:0;z-index:40;
     flex-direction:row;align-items:center;padding:10px 16px;
   }
+  /* Grid, not flex-wrap: the masthead and sign-out take row 1, both navs
+     share row 2. Squeezing everything onto one row left the nav ~127px —
+     barely one and a half entries, with the current page usually scrolled
+     out of sight. minmax(0,1fr) is what lets the nav column actually shrink
+     so its own overflow-x engages instead of pushing the row wider than the
+     screen; a plain 1fr has a min-content floor and would not. */
+  .sidebar{
+    display:grid;grid-template-columns:minmax(0,1fr) auto;
+    grid-template-areas:"brand user" "nav kal";
+    align-items:center;gap:6px 12px;
+  }
   .sidebar__top,.sidebar__bottom{display:contents}
-  .sidebar__brand{margin-bottom:0}
-  .sidebar__nav{flex-direction:row;overflow-x:auto;flex:none;margin-bottom:0}
-  .sidebar__user{border-top:0;padding-top:0;display:flex;align-items:center;gap:10px;margin-left:auto}
+  .sidebar__brand{grid-area:brand;margin-bottom:0;padding-bottom:0;border-bottom:0}
+  .sidebar__user{grid-area:user;justify-self:end;border-top:0;padding-top:0;display:flex;align-items:center;gap:10px}
+  .sidebar__nav{flex-direction:row;overflow-x:auto;margin-bottom:0}
+  .sidebar__nav::-webkit-scrollbar{height:0}
+  .sidebar__top .sidebar__nav{grid-area:nav;min-width:0}
+  .sidebar__bottom .sidebar__nav{grid-area:kal;margin-bottom:0}
+  /* The contents-page rules only read vertically — laid out in a row they
+     would draw a line over each item instead of between them. */
+  .sidebar__nav a{
+    display:flex;align-items:center;gap:6px;
+    border-top:0;padding:7px 10px;white-space:nowrap;
+  }
+  .sidebar__nav a:first-child{padding-left:0}
+  .sidebar__nav a svg{width:16px;height:16px}
   .sidebar__name,.sidebar__role{display:none}
+}
+
+/* ---------- Print (Finansije "Odštampaj izveštaj") ---------- */
+@media print{
+  .sidebar,.filters,#newTransactionBtn,#exportCsvBtn,#printBtn,
+  #editGoalBtn,.dash-grid,#pendingList,.modal-backdrop{display:none !important}
+  .portal-main{padding:0}
+  .panel{border:none;padding:0}
+  table.dtable th{background:#fff;border-bottom:2px solid var(--ink)}
 }
