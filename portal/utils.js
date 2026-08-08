@@ -52,6 +52,22 @@ const ROLE_LABELS = {
   admin: "Uprava",
 };
 
+// The owner isn't a third `role` value in the DB (see is_owner() in
+// schema.sql) — their row is still role='admin', identified here purely
+// by email so every existing role==="admin" check elsewhere keeps working
+// for them unchanged. This is the one place that email is allowed to leak
+// into UI logic; everywhere else, gate on role.
+const OWNER_EMAIL = "andrejvuckovic55@gmail.com";
+
+function isOwner(profile) {
+  return profile?.email === OWNER_EMAIL;
+}
+
+function roleLabelFor(profile) {
+  if (isOwner(profile)) return "Admin";
+  return ROLE_LABELS[profile.role] ?? profile.role;
+}
+
 const PROJECT_STATUS_LABELS = {
   planiranje: "Planiranje",
   u_toku: "U toku",

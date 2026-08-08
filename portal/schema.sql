@@ -264,10 +264,29 @@ as $$
   select public.current_role() = 'admin';
 $$;
 
+-- Owner ("Admin" in the UI) — one specific account, identified by email,
+-- not a third member_role value. Their `role` column stays 'admin', so
+-- every existing is_admin()/role==="admin" check (RLS policies, portal
+-- page guards) keeps working for them unchanged. is_owner() is the one
+-- extra gate, used only to guard the `role` column below.
+create function public.is_owner()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(
+    (select email = 'andrejvuckovic55@gmail.com' from public.profiles where id = auth.uid()),
+    false
+  );
+$$;
+
 -- ---------------------------------------------------------------------------
 -- Column protection: a member can update their own profile row, but only
--- the "personal" fields. sector_id/position/status/role/email stay
--- admin-only, enforced here (not just hidden in the UI).
+-- the "personal" fields. sector_id/position/status/email stay admin-only,
+-- and role is owner-only (even Uprava/admin cannot change roles, including
+-- their own) — enforced here, not just hidden in the UI.
 -- ---------------------------------------------------------------------------
 
 create function public.protect_profile_fields()
@@ -278,17 +297,24 @@ begin
   -- auth.uid() is null when this runs outside a normal app request (e.g.
   -- Dashboard SQL Editor as postgres/service role) — that already has full
   -- DB access, so don't block it. Only restrict real member app sessions.
-  if auth.uid() is null or public.is_admin() then
+  if auth.uid() is null or public.is_owner() then
+    return new;
+  end if;
+
+  if new.role is distinct from old.role then
+    raise exception 'Samo glavni admin može da menja uloge.';
+  end if;
+
+  if public.is_admin() then
     return new;
   end if;
 
   if new.sector_id is distinct from old.sector_id
      or new.position is distinct from old.position
      or new.status is distinct from old.status
-     or new.role is distinct from old.role
      or new.email is distinct from old.email
   then
-    raise exception 'Samo admin može da menja sektor, poziciju, status, ulogu ili email.';
+    raise exception 'Samo admin može da menja sektor, poziciju, status ili email.';
   end if;
 
   return new;

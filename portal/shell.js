@@ -84,7 +84,7 @@ async function renderShell() {
       </nav>
       <div class="sidebar__user">
         <p class="sidebar__name">${escapeHtml(profile.full_name || profile.email)}</p>
-        <p class="sidebar__role"><span class="badge">${ROLE_LABELS[profile.role] ?? profile.role}</span></p>
+        <p class="sidebar__role"><span class="badge">${roleLabelFor(profile)}</span></p>
         <button type="button" class="sidebar__signout" id="signOutBtn">Odjavi se</button>
       </div>
     </div>

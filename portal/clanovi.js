@@ -78,7 +78,7 @@ function renderGrid() {
         </div>
         <div class="member-card__foot">
           <span class="status-dot ${m.status === "active" ? "status-dot--gain" : "status-dot--neutral"}">${STATUS_LABELS[m.status] ?? m.status}</span>
-          ${m.role === "admin" ? '<span class="badge badge--light">Uprava</span>' : `<span class="member-card__email">${escapeHtml(m.email)}</span>`}
+          ${m.role === "admin" ? `<span class="badge badge--light">${roleLabelFor(m)}</span>` : `<span class="member-card__email">${escapeHtml(m.email)}</span>`}
         </div>
       </div>
     `,
@@ -115,6 +115,10 @@ async function openMemberModal(memberId) {
   const isAdmin = viewer.role === "admin";
   const canEditPersonal = isSelf || isAdmin;
   const canEditAdminFields = isAdmin;
+  // Role changes are owner-only now, even for Uprava — protect_profile_fields()
+  // in the DB rejects the update either way, but disabling the control here
+  // avoids a confusing raw error toast for an admin who tries.
+  const canEditRole = isOwner(viewer);
 
   const { data: profileTags } = await sb
     .from("profile_tags")
@@ -180,7 +184,7 @@ async function openMemberModal(memberId) {
         </label>
         <label class="field-label">
           <span>Uloga</span>
-          <select id="f_role" ${canEditAdminFields ? "" : "disabled"}>
+          <select id="f_role" ${canEditRole ? "" : "disabled"}>
             <option value="member" ${member.role === "member" ? "selected" : ""}>Član</option>
             <option value="admin" ${member.role === "admin" ? "selected" : ""}>Uprava</option>
           </select>
@@ -226,6 +230,8 @@ async function openMemberModal(memberId) {
         updates.sector_id = document.getElementById("f_sector").value || null;
         updates.position = document.getElementById("f_position").value.trim() || null;
         updates.status = document.getElementById("f_status").value;
+      }
+      if (canEditRole) {
         updates.role = document.getElementById("f_role").value;
       }
 
@@ -236,7 +242,7 @@ async function openMemberModal(memberId) {
       }
       toast("Sačuvano.");
       Object.assign(member, updates);
-      renderTable();
+      renderGrid();
       closeModal();
     });
   }
