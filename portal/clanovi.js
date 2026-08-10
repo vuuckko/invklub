@@ -64,36 +64,80 @@ function renderGrid() {
     return matchesQ && matchesSector && matchesStatus;
   });
 
-  grid.innerHTML = filtered.length
-    ? filtered
-        .map(
-          (m) => `
-      <div class="member-card" data-id="${m.id}">
-        <div class="member-card__top">
-          <span class="member-card__avatar">${escapeHtml(initials(m.full_name))}</span>
-          <p class="member-card__name">${escapeHtml(m.full_name || "(bez imena)")}</p>
-        </div>
-        <div class="member-card__sector">
-          ${
-            m.sector
-              ? `${sectorIcon(m.sector.name)}<span>${escapeHtml(m.sector.name)}</span>`
-              : `<span class="member-card__no-sector">Bez sektora</span>`
-          }
-        </div>
-        ${m.position ? `<p class="member-card__position">${escapeHtml(m.position)}</p>` : ""}
-        <div class="member-card__foot">
-          <span class="status-dot ${m.status === "active" ? "status-dot--gain" : "status-dot--neutral"}">${STATUS_LABELS[m.status] ?? m.status}</span>
-          ${m.role === "admin" ? `<span class="badge badge--light">${roleLabelFor(m)}</span>` : `<span class="member-card__email">${escapeHtml(m.email)}</span>`}
-        </div>
-      </div>
-    `,
-        )
-        .join("")
-    : '<p class="empty-state">Nema članova koji odgovaraju filteru.</p>';
+  if (!filtered.length) {
+    grid.innerHTML = '<p class="empty-state">Nema članova koji odgovaraju filteru.</p>';
+    return;
+  }
+
+  // Grouped by sector — app's own order (same as the filter dropdown, both
+  // come from the same alphabetically-sorted `sectors` fetch) — so the
+  // directory scans by section instead of a shuffled contact sheet.
+  // "Bez sektora" is a catch-all, always last. A sector with zero matches
+  // under the current search/filter just doesn't render a heading, same
+  // as Dokumenti's project groups.
+  const bySector = new Map();
+  for (const m of filtered) {
+    const key = m.sector_id ?? "none";
+    if (!bySector.has(key)) bySector.set(key, []);
+    bySector.get(key).push(m);
+  }
+
+  const groups = [
+    ...sectors.map((s) => ({ name: s.name, members: bySector.get(s.id) ?? [] })),
+    { name: "Bez sektora", members: bySector.get("none") ?? [] },
+  ].filter((g) => g.members.length);
+
+  grid.innerHTML = groups.map(memberSectionHtml).join("");
 
   grid.querySelectorAll(".member-card").forEach((card) => {
     card.addEventListener("click", () => openMemberModal(card.dataset.id));
   });
+}
+
+// The sector icon lives here, on the heading, and NOT on each card — one
+// icon per sector instead of the same icon repeated on every member in it.
+// "Bez sektora" isn't a real sectors row, so it falls through to
+// SECTOR_ICON_FALLBACK's plain ring, same as the dashboard's synthetic row.
+function memberSectionHtml(group) {
+  return `
+    <div class="member-section">
+      <div class="member-section__head">
+        <h3>${sectorIcon(group.name)}<span>${escapeHtml(group.name)}</span></h3>
+        <span class="member-section__count">${group.members.length}</span>
+      </div>
+      <div class="member-grid">
+        ${group.members.map(memberCardHtml).join("")}
+      </div>
+    </div>
+  `;
+}
+
+// Deliberately omits three things the pre-grouping card carried:
+//   - the sector name: the section heading above states it once, so
+//     printing it again on all 11 cards was pure repetition;
+//   - "Aktivan": when nearly every member is active the label is noise,
+//     so only the exception (Alumni) is marked — unmarked means active,
+//     and the status filter still queries it explicitly;
+//   - the email: it only ever rendered ellipsized ("nikolaa@gmail…"),
+//     which looks like data without being usable. It's in the modal, whole.
+function memberCardHtml(m) {
+  const marks = [
+    m.role === "admin" ? `<span class="badge badge--light">${roleLabelFor(m)}</span>` : "",
+    m.status !== "active"
+      ? `<span class="badge badge--neutral">${STATUS_LABELS[m.status] ?? m.status}</span>`
+      : "",
+  ].join("");
+
+  return `
+    <div class="member-card" data-id="${m.id}">
+      <span class="member-card__avatar">${escapeHtml(initials(m.full_name))}</span>
+      <div class="member-card__body">
+        <p class="member-card__name">${escapeHtml(m.full_name || "(bez imena)")}</p>
+        ${m.position ? `<p class="member-card__position">${escapeHtml(m.position)}</p>` : ""}
+        ${marks ? `<div class="member-card__marks">${marks}</div>` : ""}
+      </div>
+    </div>
+  `;
 }
 
 // ---------------------------------------------------------------------------
