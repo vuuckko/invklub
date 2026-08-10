@@ -31,12 +31,10 @@ let allTags = [];
   renderGrid();
 })();
 
-// A wide table forced every member into one row shape regardless of how
-// much they'd actually filled in, which is why it read as a dense,
-// hard-to-scan strip. Grouped hairline rows (see memberRowHtml below) let
-// each member take only the line they need without boxing every one of
-// them in a padded, rounded card — see the comment on .member-rows in
-// portal.css for why the card treatment itself got dropped.
+// Members render as small bounded boxes grouped under sector headings —
+// see the comment on .member-boxes in portal.css for the full history of
+// why this shape won over a table, over big avatar cards, and over a flat
+// hairline-row list.
 function renderGrid() {
   const searchInput = document.getElementById("searchInput");
   const sectorFilter = document.getElementById("sectorFilter");
@@ -82,13 +80,13 @@ function renderGrid() {
 
   grid.innerHTML = groups.map(memberSectionHtml).join("");
 
-  grid.querySelectorAll(".member-row").forEach((row) => {
-    row.addEventListener("click", () => openMemberModal(row.dataset.id));
+  grid.querySelectorAll(".member-box").forEach((box) => {
+    box.addEventListener("click", () => openMemberModal(box.dataset.id));
   });
 }
 
-// The sector icon lives here, on the heading, and NOT on each row — one
-// icon per sector instead of the same icon repeated on every member in it.
+// The sector icon lives here, on the heading, and NOT on each member — one
+// icon per sector instead of the same icon repeated on everyone in it.
 // "Bez sektora" isn't a real sectors row, so it falls through to
 // SECTOR_ICON_FALLBACK's plain ring, same as the dashboard's synthetic row.
 function memberSectionHtml(group) {
@@ -98,43 +96,50 @@ function memberSectionHtml(group) {
         <h3>${sectorIcon(group.name)}<span>${escapeHtml(group.name)}</span></h3>
         <span class="member-section__count">${group.members.length}</span>
       </div>
-      <div class="member-rows">
-        ${group.members.map(memberRowHtml).join("")}
+      <div class="member-boxes">
+        ${group.members.map(memberBoxHtml).join("")}
       </div>
     </div>
   `;
 }
 
-// No avatar and no leading initial — a circle-with-initials is the generic
-// per-user-avatar signature of every UI kit (Notion/Linear/shadcn/Figma
-// community files) regardless of how it's coloured, and a bare drop-letter
-// standing in for it read as decoration rather than information. The name
-// itself starts the row.
+// No avatar — a circle-with-initials is the generic per-user-avatar
+// signature of every UI kit (Notion/Linear/shadcn/Figma community files)
+// regardless of how it's coloured, and a bare drop-letter standing in for
+// it read as decoration rather than information. The name opens the box.
 //
-// Also omits three things the pre-grouping card carried:
+// Also omits three things the original card carried:
 //   - the sector name: the section heading above states it once;
 //   - "Aktivan": when nearly every member is active the label is noise,
 //     so only the exception (Alumni) is marked — unmarked means active;
 //   - the email: it only ever rendered ellipsized, which looked like data
 //     without being usable. It's in the modal, whole.
-// Marks reuse .status-dot (a coloured dot + plain text) instead of .badge
+// Marks reuse .status-dot (a small dot + plain text) instead of .badge
 // (a filled pill) — this app already has a non-pill way to tag role/
-// status, so role/alumni don't need the pill treatment reintroduced here.
-function memberRowHtml(m) {
+// status, so the pill treatment doesn't need reintroducing here.
+// "Uprava" is deliberately NEUTRAL, not accent: most of this club is
+// Uprava (8 of 11), so eight identical accent-blue labels made the least
+// distinguishing fact on the page its loudest element. The accent is kept
+// for the single owner ("Admin"), which is genuinely one-of-a-kind — the
+// same "colour marks the exception, not the norm" rule that took "Aktivan"
+// off these boxes in the first place.
+function memberBoxHtml(m) {
   const marks = [
     m.role === "admin"
-      ? `<span class="status-dot status-dot--accent">${roleLabelFor(m)}</span>`
+      ? `<span class="status-dot ${isOwner(m) ? "status-dot--accent" : "status-dot--neutral"}">${roleLabelFor(m)}</span>`
       : "",
     m.status !== "active"
       ? `<span class="status-dot status-dot--neutral">${STATUS_LABELS[m.status] ?? m.status}</span>`
       : "",
   ].join("");
+  const position = m.position
+    ? `<span class="member-box__position">${escapeHtml(m.position)}</span>`
+    : "";
 
   return `
-    <div class="member-row" data-id="${m.id}">
-      <span class="member-row__name">${escapeHtml(m.full_name || "(bez imena)")}</span>
-      ${m.position ? `<span class="member-row__position">${escapeHtml(m.position)}</span>` : ""}
-      ${marks ? `<span class="member-row__marks">${marks}</span>` : ""}
+    <div class="member-box" data-id="${m.id}">
+      <span class="member-box__name">${escapeHtml(m.full_name || "(bez imena)")}</span>
+      ${position || marks ? `<span class="member-box__meta">${position}${marks}</span>` : ""}
     </div>
   `;
 }

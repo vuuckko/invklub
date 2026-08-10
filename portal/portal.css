@@ -504,47 +504,65 @@ table.dtable td.num{text-align:right}
 .kv-row dt{margin:0;color:var(--ink-soft)}
 .kv-row dd{margin:0;color:var(--ink);font-weight:600;text-align:right}
 
-/* ---------- Member rows (Baza članova) — replaces the old full-width
-   table, then a rounded-card grid, now this. The table forced every row
-   into one shape regardless of how much a member had filled in, which
-   read as a dense strip; the card grid that followed fixed that but
-   brought its own generic-SaaS tell — rounded box + pastel avatar circle +
-   pill badges + heavy padding is the default "user card" in every UI kit
-   (Notion, Linear, shadcn, any Figma community file), independent of the
-   specific colours used. Once the cards were grouped under sector
-   headings there was barely anything left on each one (monogram, name,
-   maybe a position and a mark) — too little content to justify a boxed,
-   padded, rounded container at all. A plain hairline-divided row carries
-   the same information at higher density, closer to how Notion/Airtable
-   actually lay out a list of people than a wall of padded cards is, and
-   it fits this app's own document vocabulary (hairline rules, tabular
-   figures) instead of borrowing a chat-app avatar pattern. ---------- */
-.member-rows{display:flex;flex-direction:column}
-/* border-radius:0 deliberately — every other surface on this page is a
-   hairline rule, and a rounded hover highlight was the last leftover of
-   the card treatment this replaced. */
-.member-row{
-  display:flex;align-items:baseline;gap:12px;
-  padding:10px 4px;border-top:1px solid var(--line);
-  cursor:pointer;border-radius:0;
+/* ---------- Member boxes (Baza članova) — fourth iteration, chosen by the
+   user from a side-by-side against a flat hairline-row list.
+
+   History worth keeping, because each step was rejected for a *different*
+   reason and it's easy to re-introduce an old fault: (1) a full-width
+   table — every member forced into one row shape, "nepregledno"; (2) big
+   rounded cards with pastel avatar circles and pill badges — the default
+   "user card" of every UI kit (Notion/Linear/shadcn/Figma community),
+   generic regardless of colour, and mostly empty once grouping moved the
+   sector name up to the heading; (3) flat hairline rows — solved density
+   but, inside a .portal-main that has no max-width, put ~1500px between a
+   person and their own label and read as an undifferentiated bold field.
+
+   This version keeps the *containment* of (2) — one member = one bounded
+   object the eye can separate without effort — while stripping what made
+   it generic: radius drops 14px -> 6px, padding 16px -> 9px/11px, no
+   avatar, no pills, one bold weight per box. Small boxes also use the
+   page width honestly: a six-person sector fills several columns instead
+   of running as one thin ragged column down a 1900px screen. ---------- */
+.member-boxes{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+  gap:7px;align-items:start;margin-top:10px;
 }
-.member-row:first-child{border-top:none}
-.member-row:hover{background:var(--paper)}
-/* No ellipsis, no max-width — truncating a person's name is the one place
-   in this app where the cut is never acceptable. */
-.member-row__name{font-weight:700;color:var(--ink);font-size:.94rem;flex:none}
-.member-row__position{
-  color:var(--ink-soft);font-size:.83rem;flex:1;min-width:0;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+.member-box{
+  background:#fff;border:1px solid var(--line);border-radius:6px;
+  padding:9px 11px;cursor:pointer;
+  display:flex;flex-direction:column;gap:2px;
+  transition:border-color .15s ease,background .15s ease;
 }
-.member-row__marks{display:flex;align-items:center;gap:16px;flex:none;margin-left:auto;padding-left:12px}
+.member-box:hover{border-color:var(--accent);background:var(--paper)}
+/* 600, not 700: the section heading above is already 700 at nearly the
+   same size — two bold weights that close together gave the eye nothing
+   to rank, which is what made the page read as "sve je boldovano".
+   Heading leads (700), name follows (600), everything else is light.
+   Wraps rather than ellipsizing — truncating a person's name is the one
+   place in this app where the cut is never acceptable. */
+.member-box__name{font-weight:600;color:var(--ink);font-size:.9rem;line-height:1.25;overflow-wrap:break-word}
+.member-box__meta{
+  display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;
+  font-size:.79rem;color:var(--ink-soft);
+}
+/* Scoped override, NOT an edit to .status-dot itself — that base class is
+   shared with Partneri/Projekti/Finansije, where 600 is correct because it
+   carries a whole column. Here it's a trailing footnote after a name. */
+.member-box .status-dot{font-weight:400;font-size:.79rem}
+.member-box .status-dot::before{width:5px;height:5px}
 
 /* Members grouped by sector (directory reads by section instead of a
-   shuffled list) — a heading + hairline rule, not a boxed .panel: rows
-   already carry their own hairline dividers, so wrapping the whole group
-   in another bordered, rounded box would just nest one rule language
-   inside another for no reason. The sector icon sits here, once per
-   section, instead of being repeated on every row in it. */
+   shuffled list) — a heading + hairline rule, not a boxed .panel: the
+   boxes below already carry their own borders, so wrapping the whole
+   group in another bordered container would nest one box inside another
+   for no reason. The sector icon sits here, once per section, instead of
+   being repeated on every member in it.
+
+   Capped measure, following .notes-sheet's existing precedent: .portal-main
+   has no max-width, so on a wide monitor the heading's rule ran past
+   1700px with two words under it. The cap also keeps the box grid to a
+   sane 3-4 columns instead of smearing six people across a 1900px row. */
+.member-section{max-width:74ch}
 .member-section + .member-section{margin-top:30px}
 .member-section__head{
   display:flex;justify-content:space-between;align-items:center;gap:12px;
