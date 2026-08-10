@@ -4,9 +4,13 @@ const MONTH_NAMES = [
   "Jul", "Avgust", "Septembar", "Oktobar", "Novembar", "Decembar",
 ];
 
+// Every dated thing on the calendar, normalised to the same shape:
+// a start, an end (equal to start for single-day things) and a label.
+// A month grid then only has to place ranges — it never needs to know
+// whether something came from projects, tasks, transactions or
+// calendar_events.
+let entries = [];
 let itemsByDate = new Map();
-let spanDates = new Set();
-let eventSpanDates = new Set();
 let viewYear, viewMonth;
 let selectedDate = toDateKey(new Date());
 
@@ -54,8 +58,7 @@ let events = [];
     viewYear = now.getFullYear();
     viewMonth = now.getMonth();
     selectedDate = toDateKey(now);
-    renderCalendar();
-    renderSelectedDay();
+    renderAll();
   });
 
   if (isAdmin) {
@@ -67,77 +70,170 @@ let events = [];
     if (e.target === e.currentTarget) closeModal();
   });
 
-  renderCalendar();
-  renderSelectedDay();
+  renderAll();
 })();
 
+function renderAll() {
+  renderCalendar();
+  renderSelectedDay();
+  renderUpcoming();
+}
+
 // ---------------------------------------------------------------------------
-// Items — tasks/projects/payments come from their own tables; calendar_events
-// covers everything else (rokovi van projekta: dan intervjua, zatvaranje
-// prijava, ...). Rebuilt from scratch whenever any source array changes, so
-// adding/removing a custom event doesn't need its own incremental patch path.
+// Data -> entries
 // ---------------------------------------------------------------------------
+
+// How many distinct range colours exist — must match the .cal-ev--c0..cN
+// rules in portal.css.
+const SPAN_COLORS = 6;
+
+// Stable colour per range, derived from its own id rather than from its
+// position in the list: a project added later must not recolour every
+// other project on the calendar.
+function colorIndexFor(id) {
+  let h = 0;
+  for (let i = 0; i < String(id).length; i++) h = (h * 31 + String(id).charCodeAt(i)) >>> 0;
+  return h % SPAN_COLORS;
+}
 
 function rebuildItems() {
   itemsByDate = new Map();
-  spanDates = new Set();
-  eventSpanDates = new Set();
+  entries = [];
+
+  // --- ranges first, so colours can be resolved against real overlaps ---
+  const ranges = [];
+  for (const p of projects) {
+    if (p.status === "zavrsen") continue;
+    if (p.start_date && p.deadline) {
+      ranges.push({
+        id: p.id, kind: "project", label: p.name,
+        start: p.start_date.slice(0, 10), end: p.deadline.slice(0, 10),
+        href: `projekti.html?id=${p.id}`,
+      });
+    }
+  }
+  for (const ev of events) {
+    if (ev.start_date !== ev.end_date) {
+      ranges.push({
+        id: ev.id, kind: "event", label: ev.title,
+        start: ev.start_date.slice(0, 10), end: ev.end_date.slice(0, 10),
+        href: null,
+      });
+    }
+  }
+  assignRangeColors(ranges);
+
+  for (const r of ranges) {
+    entries.push({ ...r, cls: `cal-ev--c${r.color}` });
+    // Detail panel: the start and end days say so explicitly, and every
+    // day in between reports the range as running. Without the middle
+    // days, clicking the 20th of a month-long range showed "nothing on
+    // this day", which is plainly false and was the least practical thing
+    // about the old panel.
+    addItem(r.start, { type: r.kind, id: r.id, label: `Početak: ${r.label}`, href: r.href });
+    addItem(r.end, { type: r.kind, id: r.id, label: `Kraj: ${r.label}`, href: r.href });
+    const cursor = new Date(r.start + "T00:00:00");
+    const end = new Date(r.end + "T00:00:00");
+    cursor.setDate(cursor.getDate() + 1);
+    while (cursor < end) {
+      addItem(toDateKey(cursor), { type: "ongoing", id: r.id, label: r.label, href: r.href });
+      cursor.setDate(cursor.getDate() + 1);
+    }
+  }
+
+  // --- single-day things ---
+  const single = (date, o) => {
+    const key = date.slice(0, 10);
+    entries.push({ ...o, start: key, end: key });
+    addItem(key, { type: o.kind, id: o.id, label: o.label, href: o.href });
+  };
 
   for (const t of tasks) {
     if (t.status === "zavrseno") continue;
-    addItem(t.due_date, { type: "task", label: t.title, href: `projekti.html?id=${t.project_id}` });
+    single(t.due_date, {
+      id: t.id, kind: "task", label: t.title,
+      href: `projekti.html?id=${t.project_id}`, cls: "cal-ev--task",
+    });
   }
   for (const p of projects) {
     if (p.status === "zavrsen") continue;
+    // A project missing one of its two dates has no range to draw, so its
+    // single known date shows on its own.
+    if (p.start_date && p.deadline) continue;
     if (p.deadline) {
-      addItem(p.deadline, { type: "project", label: `Kraj: ${p.name}`, href: `projekti.html?id=${p.id}` });
-    }
-    if (p.start_date) {
-      addItem(p.start_date, { type: "project", label: `Početak: ${p.name}`, href: `projekti.html?id=${p.id}` });
-    }
-    if (p.start_date && p.deadline) {
-      markSpan(p.start_date, p.deadline);
+      single(p.deadline, { id: p.id, kind: "project", label: `Kraj: ${p.name}`, href: `projekti.html?id=${p.id}`, cls: "cal-ev--project" });
+    } else if (p.start_date) {
+      single(p.start_date, { id: p.id, kind: "project", label: `Početak: ${p.name}`, href: `projekti.html?id=${p.id}`, cls: "cal-ev--project" });
     }
   }
   for (const pay of payments) {
-    addItem(pay.date, {
-      type: "payment",
-      label: `Uplata: ${formatCurrency(pay.amount)}`,
-      href: "finansije.html",
+    single(pay.date, {
+      id: pay.id, kind: "payment", label: `Uplata: ${formatCurrency(pay.amount)}`,
+      href: "finansije.html", cls: "cal-ev--payment",
     });
   }
   for (const ev of events) {
-    // No href — a standalone deadline has no detail page to link to. Single-
-    // day event (start === end, the common case: "dan intervjua") gets one
-    // plain chip; a real range gets a Početak/Kraj pair plus the shaded
-    // span between them, same convention as projects just below.
-    const isSingleDay = ev.start_date === ev.end_date;
-    addItem(ev.start_date, {
-      type: "event",
-      id: ev.id,
-      label: isSingleDay ? ev.title : `Početak: ${ev.title}`,
-      href: null,
-    });
-    if (!isSingleDay) {
-      addItem(ev.end_date, { type: "event", id: ev.id, label: `Kraj: ${ev.title}`, href: null });
-      markSpan(ev.start_date, ev.end_date, eventSpanDates);
-    }
+    if (ev.start_date !== ev.end_date) continue;
+    single(ev.start_date, { id: ev.id, kind: "event", label: ev.title, href: null, cls: "cal-ev--event" });
+  }
+
+  assignLanes();
+}
+
+// Lanes are assigned ONCE across the whole calendar, not per week. Packing
+// each week independently looked tidier but made a range change rows from
+// one week to the next (a month-long range sat on row 1 in its first week
+// and row 4 in the next, purely because of how the week's own sort came
+// out) — the bar appeared to jump, which reads as a rendering fault. A
+// fixed lane costs the occasional empty row and is worth it.
+//
+// Longest-first within the same start date, so month-long ranges settle
+// above one-day items rather than the order being an accident of which
+// table was queried first.
+function assignLanes() {
+  const sorted = [...entries].sort(
+    (a, b) =>
+      a.start.localeCompare(b.start) ||
+      dayDiff(b.start, b.end) - dayDiff(a.start, a.end) ||
+      a.label.localeCompare(b.label),
+  );
+  const laneEnd = [];
+  for (const e of sorted) {
+    let lane = laneEnd.findIndex((end) => end < e.start);
+    if (lane === -1) lane = laneEnd.length;
+    laneEnd[lane] = e.end;
+    e.lane = lane;
   }
 }
 
-function addItem(dateStr, item) {
-  const key = dateStr.slice(0, 10);
-  if (!itemsByDate.has(key)) itemsByDate.set(key, []);
-  itemsByDate.get(key).push(item);
+function addItem(dateKey, item) {
+  if (!itemsByDate.has(dateKey)) itemsByDate.set(dateKey, []);
+  itemsByDate.get(dateKey).push(item);
 }
 
-function markSpan(startStr, endStr, targetSet = spanDates) {
-  const cursor = new Date(startStr.slice(0, 10) + "T00:00:00");
-  const end = new Date(endStr.slice(0, 10) + "T00:00:00");
-  cursor.setDate(cursor.getDate() + 1);
-  while (cursor < end) {
-    targetSet.add(toDateKey(cursor));
-    cursor.setDate(cursor.getDate() + 1);
+// Colour is the id hash by preference (so a project keeps its colour when
+// an unrelated one is added), but that is only a preference: a plain hash
+// can collide, and two ranges that collide WHILE OVERLAPPING would defeat
+// the point of drawing them as separate bars. Any colour already held by a
+// range this one overlaps is therefore skipped. Guaranteed distinct up to
+// SPAN_COLORS concurrent ranges; beyond that colours must repeat, but the
+// bars still sit on separate rows.
+function assignRangeColors(ranges) {
+  const sorted = [...ranges].sort((a, b) => a.start.localeCompare(b.start));
+  const placed = [];
+  for (const r of sorted) {
+    const taken = new Set(
+      placed.filter((p) => p.end >= r.start && p.start <= r.end).map((p) => p.color),
+    );
+    let color = colorIndexFor(r.id);
+    if (taken.has(color)) {
+      for (let i = 1; i <= SPAN_COLORS; i++) {
+        const candidate = (color + i) % SPAN_COLORS;
+        if (!taken.has(candidate)) { color = candidate; break; }
+      }
+    }
+    r.color = color;
+    placed.push({ start: r.start, end: r.end, color });
   }
 }
 
@@ -148,17 +244,39 @@ function toDateKey(date) {
   return `${y}-${m}-${d}`;
 }
 
+function addDays(key, n) {
+  const d = new Date(key + "T00:00:00");
+  d.setDate(d.getDate() + n);
+  return toDateKey(d);
+}
+
 function shiftMonth(delta) {
   viewMonth += delta;
-  if (viewMonth < 0) {
-    viewMonth = 11;
-    viewYear--;
-  } else if (viewMonth > 11) {
-    viewMonth = 0;
-    viewYear++;
-  }
+  if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+  else if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+
+  // Keep the day panel in the month you are actually looking at. It used to
+  // keep showing e.g. "21. Avgust" while the grid had moved on to
+  // Septembar, which read as a bug.
+  const todayKey = toDateKey(new Date());
+  const first = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-01`;
+  selectedDate = todayKey.slice(0, 7) === first.slice(0, 7) ? todayKey : first;
+
   renderCalendar();
+  renderSelectedDay();
 }
+
+// ---------------------------------------------------------------------------
+// Month grid
+//
+// Each week is its own 7-column grid. Day cells occupy row 1 and stretch
+// down through every row (grid-row:1/-1) as the clickable background;
+// entries are placed on top of them with grid-column: <startDay> / span
+// <days>, so a range becomes ONE bar carrying its own name across all the
+// days it covers instead of an anonymous 4px line plus a chip truncated to
+// "Poče…". Rows below the first are only created when something occupies
+// them, so a quiet week collapses instead of reserving 96px per cell.
+// ---------------------------------------------------------------------------
 
 function renderCalendar() {
   document.getElementById("calTitle").textContent = `${MONTH_NAMES[viewMonth]} ${viewYear}`;
@@ -166,63 +284,107 @@ function renderCalendar() {
   const firstOfMonth = new Date(viewYear, viewMonth, 1);
   const startOffset = (firstOfMonth.getDay() + 6) % 7; // Monday = 0
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
-  const daysInPrevMonth = new Date(viewYear, viewMonth, 0).getDate();
   const todayKey = toDateKey(new Date());
 
-  const prevMonth = viewMonth === 0 ? 11 : viewMonth - 1;
-  const prevYear = viewMonth === 0 ? viewYear - 1 : viewYear;
-  const nextMonth = viewMonth === 11 ? 0 : viewMonth + 1;
-  const nextYear = viewMonth === 11 ? viewYear + 1 : viewYear;
+  const gridStart = toDateKey(new Date(viewYear, viewMonth, 1 - startOffset));
+  const cellCount = Math.ceil((startOffset + daysInMonth) / 7) * 7;
 
-  const cells = [];
-  for (let i = startOffset - 1; i >= 0; i--) {
-    cells.push({ day: daysInPrevMonth - i, month: prevMonth, year: prevYear, outside: true });
-  }
-  for (let d = 1; d <= daysInMonth; d++) {
-    cells.push({ day: d, month: viewMonth, year: viewYear, outside: false });
-  }
-  let nextDay = 1;
-  while (cells.length % 7 !== 0) {
-    cells.push({ day: nextDay++, month: nextMonth, year: nextYear, outside: true });
+  const weeks = [];
+  for (let i = 0; i < cellCount; i += 7) {
+    weeks.push(
+      Array.from({ length: 7 }, (_, d) => {
+        const key = addDays(gridStart, i + d);
+        return { key, day: Number(key.slice(8, 10)), outside: Number(key.slice(5, 7)) !== viewMonth + 1 };
+      }),
+    );
   }
 
   const grid = document.getElementById("calGrid");
   grid.innerHTML =
-    WEEKDAYS.map((w) => `<div class="cal-weekday">${w}</div>`).join("") +
-    cells
-      .map((c) => {
-        const key = `${c.year}-${String(c.month + 1).padStart(2, "0")}-${String(c.day).padStart(2, "0")}`;
-        const items = itemsByDate.get(key) ?? [];
-        const isToday = key === todayKey;
-        const isSpan = spanDates.has(key);
-        const isEventSpan = eventSpanDates.has(key);
+    `<div class="cal-weekdays">${WEEKDAYS.map((w) => `<div class="cal-weekday">${w}</div>`).join("")}</div>` +
+    weeks.map((week) => weekHtml(week, todayKey)).join("");
 
-        return `
-        <div class="cal-day ${c.outside ? "is-outside" : ""} ${isToday ? "is-today" : ""} ${isSpan ? "is-span" : ""} ${isEventSpan ? "is-event-span" : ""}" data-date="${key}">
-          <span class="cal-day__num">${c.day}</span>
-          ${items
-            .slice(0, 2)
-            .map(
-              (it) =>
-                `<span class="cal-day__dot cal-day__dot--${it.type}">${escapeHtml(it.label)}</span>`,
-            )
-            .join("")}
-          ${items.length > 2 ? `<span class="cal-day__more">+${items.length - 2} više</span>` : ""}
-        </div>
-      `;
-      })
-      .join("");
-
-  grid.querySelectorAll(".cal-day").forEach((el) => {
+  grid.querySelectorAll("[data-date]").forEach((el) => {
     el.addEventListener("click", () => {
       selectedDate = el.dataset.date;
+      renderCalendar();
       renderSelectedDay();
     });
   });
 }
 
-const TYPE_BADGE = { task: "badge--light", project: "badge--gain", payment: "badge--warn", event: "badge--warn" };
-const TYPE_LABEL = { task: "Zadatak", project: "Projekat", payment: "Uplata", event: "Rok" };
+function weekHtml(week, todayKey) {
+  const weekStart = week[0].key;
+  const weekEnd = week[6].key;
+
+  // Rows are packed per week, but in GLOBAL lane order — a hybrid, because
+  // each pure approach fails on its own. Packing by the week's own sort
+  // made ranges swap places between weeks (the bar appeared to jump).
+  // Using the global lane as the literal grid row fixed that but left dead
+  // gaps: in a week holding only lanes 1 and 6, rows 3-5 were still created
+  // empty. Ordering by global lane keeps a range reliably above the same
+  // neighbours everywhere, while re-packing keeps the rows contiguous.
+  const inWeek = entries
+    .filter((e) => e.end >= weekStart && e.start <= weekEnd)
+    .map((e) => ({
+      entry: e,
+      from: e.start < weekStart ? weekStart : e.start,
+      to: e.end > weekEnd ? weekEnd : e.end,
+    }))
+    .sort((a, b) => a.entry.lane - b.entry.lane);
+
+  const rowEnd = [];
+  const bars = inWeek.map((seg) => {
+    const e = seg.entry;
+    let lane = rowEnd.findIndex((end) => end < seg.from);
+    if (lane === -1) lane = rowEnd.length;
+    rowEnd[lane] = seg.to;
+
+    const col = dayDiff(weekStart, seg.from) + 1;
+    const span = dayDiff(seg.from, seg.to) + 1;
+    const isStart = seg.from === e.start;
+    const isEnd = seg.to === e.end;
+    const attrs =
+      `class="cal-ev ${e.cls}${isStart ? " is-start" : ""}${isEnd ? " is-end" : ""}" ` +
+      `style="grid-column:${col} / span ${span};grid-row:${lane + 2}" ` +
+      `title="${escapeHtml(e.label)}"`;
+
+    return e.href
+      ? `<a ${attrs} href="${e.href}">${escapeHtml(e.label)}</a>`
+      : `<span ${attrs} data-date="${e.start}">${escapeHtml(e.label)}</span>`;
+  });
+
+  const days = week
+    .map(
+      (c, i) => `
+      <div class="cal-day${c.outside ? " is-outside" : ""}${c.key === todayKey ? " is-today" : ""}${c.key === selectedDate ? " is-selected" : ""}"
+           style="grid-column:${i + 1}" data-date="${c.key}">
+        <span class="cal-day__num">${c.day}</span>
+      </div>`,
+    )
+    .join("");
+
+  return `<div class="cal-week">${days}${bars.join("")}</div>`;
+}
+
+function dayDiff(a, b) {
+  return Math.round(
+    (new Date(b + "T00:00:00") - new Date(a + "T00:00:00")) / 86400000,
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Side panels
+// ---------------------------------------------------------------------------
+
+const TYPE_BADGE = {
+  task: "badge--light", project: "badge--gain", payment: "badge--warn",
+  event: "badge--warn", ongoing: "badge--neutral",
+};
+const TYPE_LABEL = {
+  task: "Zadatak", project: "Projekat", payment: "Uplata",
+  event: "Rok", ongoing: "U toku",
+};
 
 function renderSelectedDay() {
   const items = itemsByDate.get(selectedDate) ?? [];
@@ -235,14 +397,46 @@ function renderSelectedDay() {
 
   document.getElementById("selectedDayList").innerHTML = items.length
     ? items.map(rowItemHtml).join("")
-    : '<p class="empty-state">Nema rokova ovog dana.</p>';
+    : '<p class="empty-state" style="padding:14px 0">Nema rokova ovog dana.</p>';
 
-  document.getElementById("selectedDayList")
-    .querySelectorAll("[data-delete-event]")
-    .forEach((btn) => btn.addEventListener("click", (e) => {
-      e.preventDefault();
-      deleteEvent(btn.dataset.deleteEvent);
-    }));
+  bindDeleteButtons(document.getElementById("selectedDayList"));
+}
+
+// A month grid answers "what happens in August". The far more common
+// question is "what is next", which used to need scrolling and counting.
+function renderUpcoming() {
+  const host = document.getElementById("upcomingList");
+  if (!host) return;
+
+  const todayKey = toDateKey(new Date());
+  const soon = entries
+    .filter((e) => e.end >= todayKey)
+    .sort((a, b) => a.start.localeCompare(b.start) || a.label.localeCompare(b.label))
+    .slice(0, 7);
+
+  host.innerHTML = soon.length
+    ? soon.map(upcomingRowHtml).join("")
+    : '<p class="empty-state" style="padding:14px 0">Nema predstojećih rokova.</p>';
+
+  bindDeleteButtons(host);
+}
+
+function upcomingRowHtml(e) {
+  const running = e.start <= toDateKey(new Date()) && e.end >= toDateKey(new Date());
+  const days = dayDiff(toDateKey(new Date()), e.start);
+  const when = running
+    ? "u toku"
+    : days === 0 ? "danas"
+    : days === 1 ? "sutra"
+    : `za ${days} dana`;
+
+  const inner = `
+    <span class="row-item__title">${escapeHtml(e.label)}</span>
+    <span class="cal-when${running ? " is-running" : ""}">${when}</span>`;
+
+  return e.href
+    ? `<a class="row-item" href="${e.href}" style="text-decoration:none">${inner}</a>`
+    : `<div class="row-item">${inner}</div>`;
 }
 
 function rowItemHtml(it) {
@@ -250,7 +444,8 @@ function rowItemHtml(it) {
 
   // Custom events have no target page — plain row, not a link — and admins
   // get an inline delete control since these are typed in by hand and will
-  // occasionally need a quick fix.
+  // occasionally need a quick fix. Only the real start/end rows carry it,
+  // never an "u toku" row, so one range can't be deleted from 20 places.
   if (it.type === "event") {
     const del = isAdmin
       ? `<button type="button" class="row-item__delete" title="Obriši rok" data-delete-event="${it.id}">&times;</button>`
@@ -263,12 +458,30 @@ function rowItemHtml(it) {
     `;
   }
 
+  if (!it.href) {
+    return `
+      <div class="row-item">
+        <span class="row-item__title">${escapeHtml(it.label)}</span>
+        ${badge}
+      </div>
+    `;
+  }
+
   return `
     <a class="row-item" href="${it.href}" style="text-decoration:none">
       <span class="row-item__title">${escapeHtml(it.label)}</span>
       ${badge}
     </a>
   `;
+}
+
+function bindDeleteButtons(host) {
+  host.querySelectorAll("[data-delete-event]").forEach((btn) =>
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      deleteEvent(btn.dataset.deleteEvent);
+    }),
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -338,8 +551,7 @@ function openEventForm() {
     events.push(data);
     rebuildItems();
     selectedDate = data.start_date;
-    renderCalendar();
-    renderSelectedDay();
+    renderAll();
     toast("Rok dodat.");
     closeModal();
   });
@@ -355,7 +567,6 @@ async function deleteEvent(id) {
 
   events = events.filter((e) => e.id !== id);
   rebuildItems();
-  renderCalendar();
-  renderSelectedDay();
+  renderAll();
   toast("Rok obrisan.");
 }

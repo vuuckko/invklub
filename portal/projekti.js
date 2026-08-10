@@ -184,6 +184,10 @@ function renderDetail(id) {
     editBtn.hidden = false;
     editBtn.onclick = () => openProjectForm(project);
 
+    const deleteBtn = document.getElementById("deleteProjectBtn");
+    deleteBtn.hidden = false;
+    deleteBtn.onclick = () => openDeleteProjectDialog(project);
+
     const newTaskBtn = document.getElementById("newTaskBtn");
     newTaskBtn.hidden = false;
     newTaskBtn.onclick = () => openTaskForm(project);
@@ -600,6 +604,111 @@ function openProjectForm(project) {
     toast("Sačuvano.");
     closeModal();
     window.location.href = `projekti.html?id=${savedId}`;
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Delete a project.
+//
+// The database does most of the work through the foreign keys already
+// declared in schema.sql, and they do NOT all behave the same way — the
+// dialog below spells the difference out rather than saying a vague "are
+// you sure":
+//   tasks, project_members, project_partners, documents -> on delete cascade
+//   transactions                                        -> on delete set null
+// So the money history survives (deliberately: an expense really happened
+// even if the project it belonged to is gone), while tasks and document
+// records do not.
+//
+// The one thing the database CANNOT do is remove the actual files from
+// Supabase Storage. `documents` rows vanish by cascade, and once they are
+// gone nothing in the app points at those objects any more — they would
+// sit in the bucket forever, unreachable and uncountable. So the files are
+// removed first, while their rows still exist to tell us the paths.
+// ---------------------------------------------------------------------------
+
+async function openDeleteProjectDialog(project) {
+  const [{ data: docs }, { data: tx }] = await Promise.all([
+    sb.from("documents").select("id, storage_path").eq("project_id", project.id),
+    sb.from("transactions").select("id").eq("project_id", project.id),
+  ]);
+
+  const docList = docs ?? [];
+  const txCount = (tx ?? []).length;
+  const taskCount = (tasksByProject.get(project.id) ?? []).length;
+  const memberCount = (membersByProject.get(project.id) ?? []).length;
+
+  const losses = [
+    taskCount ? `${taskCount} ${taskCount === 1 ? "zadatak" : "zadataka"}` : null,
+    docList.length ? `${docList.length} ${docList.length === 1 ? "dokument" : "dokumenata"} (i sami fajlovi)` : null,
+    memberCount ? `veze sa ${memberCount} ${memberCount === 1 ? "članom" : "člana"}` : null,
+  ].filter(Boolean);
+
+  const backdrop = document.getElementById("modalBackdrop");
+  const modalBody = document.getElementById("modalBody");
+
+  modalBody.innerHTML = `
+    <div class="modal__head">
+      <h3 style="margin:0">Obriši projekat</h3>
+      <button type="button" class="modal__close" id="mClose">&times;</button>
+    </div>
+    <p style="margin:0 0 14px">
+      Projekat <strong>${escapeHtml(project.name)}</strong> biće trajno obrisan.
+      Ovo se ne može poništiti.
+    </p>
+    ${
+      losses.length
+        ? `<p class="text-muted" style="margin:0 0 6px;font-size:.9rem">Briše se i:</p>
+           <ul style="margin:0 0 14px;padding-left:20px;color:var(--ink-soft);font-size:.9rem;line-height:1.7">
+             ${losses.map((l) => `<li>${l}</li>`).join("")}
+           </ul>`
+        : `<p class="text-muted" style="margin:0 0 14px;font-size:.9rem">Uz projekat nema vezanih zadataka ni dokumenata.</p>`
+    }
+    ${
+      txCount
+        ? `<p class="text-muted" style="margin:0 0 14px;font-size:.9rem">
+             ${txCount} ${txCount === 1 ? "transakcija ostaje" : "transakcija ostaje"} u Finansijama, samo bez veze sa projektom — evidencija novca se ne briše.
+           </p>`
+        : ""
+    }
+    <div class="modal__actions">
+      <button type="button" class="btn btn--danger" id="confirmDeleteBtn">Obriši projekat</button>
+      <button type="button" class="btn btn--ghost" id="mCancel">Otkaži</button>
+    </div>
+  `;
+
+  backdrop.hidden = false;
+  document.getElementById("mClose").addEventListener("click", closeModal);
+  document.getElementById("mCancel").addEventListener("click", closeModal);
+
+  document.getElementById("confirmDeleteBtn").addEventListener("click", async (e) => {
+    const btn = e.currentTarget;
+    btn.disabled = true;
+    btn.textContent = "Brišem…";
+
+    // Files before rows. If this fails we stop rather than pressing on —
+    // deleting the project anyway would strand the files with nothing left
+    // in the app referencing them.
+    if (docList.length) {
+      const { error: storageError } = await sb.storage
+        .from("documents")
+        .remove(docList.map((d) => d.storage_path));
+      if (storageError) {
+        btn.disabled = false;
+        btn.textContent = "Obriši projekat";
+        return toast(`Fajlovi nisu obrisani: ${storageError.message}. Projekat nije obrisan.`, "error");
+      }
+    }
+
+    const { error } = await sb.from("projects").delete().eq("id", project.id);
+    if (error) {
+      btn.disabled = false;
+      btn.textContent = "Obriši projekat";
+      return toast(error.message, "error");
+    }
+
+    closeModal();
+    window.location.href = "projekti.html";
   });
 }
 

@@ -697,11 +697,28 @@ table.dtable td.num{text-align:right}
 .text-muted{color:var(--ink-soft)}
 .empty-state{padding:36px;text-align:center;color:var(--ink-soft)}
 .btn--sm{padding:.55em 1.1em;font-size:.85rem}
+.head-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+/* Destructive action: quiet at rest (it sits next to an everyday Edit
+   button and shouldn't shout on every page view), unmistakably dangerous
+   once the pointer is on it. Red is meaning here, not decoration.
+   NOT scoped under .portal-app — .modal is rendered outside it, so a
+   scoped rule silently missed the confirm button in the delete dialog,
+   which is the one place the colour matters most. */
+.btn--danger{
+  background:#fff;border:1.5px solid var(--line);color:#b3261e;box-shadow:none;
+}
+.btn--danger:hover{background:#b3261e;border-color:#b3261e;color:#fff}
 .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media (max-width:520px){.field-grid{grid-template-columns:1fr}}
 .readonly-field{padding:9px 0;color:var(--ink-soft);font-size:.9rem}
 
-/* ---------- Calendar ---------- */
+/* ---------- Calendar ----------
+   Scoped to this page only: .dash-grid's default 1.4fr/1fr is right for
+   the dashboard, but here it left the month grid at ~58% of the width, so
+   every chip truncated to "Poče…" while the day-detail panel sat mostly
+   empty. The grid is the page; the detail panel is a sidebar to it. */
+[data-page="kalendar"] .dash-grid{grid-template-columns:2.5fr 1fr}
+@media (max-width:1100px){[data-page="kalendar"] .dash-grid{grid-template-columns:1fr}}
 .cal-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 12px;margin-bottom:18px}
 .cal-head__title{font-family:var(--disp);font-weight:700;font-size:1.3rem;color:var(--ink);text-align:center;min-width:11ch}
 .cal-nav{display:flex;align-items:center;gap:4px}
@@ -711,32 +728,87 @@ table.dtable td.num{text-align:right}
   width:34px;height:34px;font-size:1rem;cursor:pointer;color:var(--ink);
 }
 .cal-nav button:hover{border-color:var(--accent);color:var(--accent)}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;background:var(--line)}
-.cal-weekday{background:var(--mist);color:var(--ink-soft);font-weight:600;font-size:.78rem;text-align:center;padding:9px 4px}
-.cal-day{
-  background:#fff;min-height:96px;padding:8px;position:relative;
-  display:flex;flex-direction:column;gap:4px;cursor:pointer;
+/* The month is built as six independent week grids, not one 42-cell grid.
+   That is what lets a range become a single bar spanning several columns
+   (grid-column: <day> / span <n>) carrying its own name, instead of an
+   anonymous 4px line repeated per cell plus a chip truncated to "Poče…".
+   minmax(0,1fr), never a bare 1fr: `1fr` is minmax(auto,1fr) and `auto`
+   will not shrink below min-content, so a single nowrap label used to drag
+   one weekday column out to 336px while the rest collapsed to ~53px. */
+.cal-grid{border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;background:#fff}
+.cal-weekdays{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));background:var(--mist)}
+.cal-weekday{
+  color:var(--ink-soft);font-weight:600;font-size:.78rem;text-align:center;padding:8px 4px;
+  border-right:1px solid var(--line);
 }
+.cal-weekday:last-child{border-right:none}
+/* Row 1 holds the date numbers; every further row is created only when a
+   bar actually occupies it, so a week with nothing in it collapses to its
+   minimum instead of reserving 96px per cell the way the old fixed-height
+   cells did. */
+.cal-week{
+  display:grid;grid-template-columns:repeat(7,minmax(0,1fr));
+  grid-template-rows:24px;grid-auto-rows:19px;
+  row-gap:3px;padding-bottom:6px;min-height:58px;
+  border-top:1px solid var(--line);
+}
+.cal-day{
+  grid-row:1 / -1;padding:4px 6px;cursor:pointer;min-width:0;
+  border-right:1px solid var(--line);
+}
+.cal-day:nth-child(7){border-right:none}
 .cal-day:hover{background:var(--paper)}
-.cal-day.is-outside{background:var(--paper);opacity:.5}
-.cal-day.is-span{background:var(--gain-soft)}
-.cal-day.is-span.is-today{background:var(--gain-soft)}
-.cal-day.is-event-span{background:#fdecea}
-.cal-day.is-event-span.is-today{background:#fdecea}
+.cal-day.is-outside{background:var(--paper)}
+.cal-day.is-selected{background:var(--mist)}
+.cal-day__num{font-size:.8rem;color:var(--ink);font-weight:600}
+.cal-day.is-outside .cal-day__num{color:var(--ink-soft)}
 .cal-day.is-today .cal-day__num{
   background:var(--accent);color:#fff;border-radius:50%;
-  width:24px;height:24px;display:flex;align-items:center;justify-content:center;
+  width:21px;height:21px;display:inline-flex;align-items:center;justify-content:center;
 }
-.cal-day__num{font-family:var(--sans);font-size:.82rem;color:var(--ink);font-weight:600}
-.cal-day__dot{
-  font-size:.68rem;background:var(--mist);color:var(--navy-800);border-radius:5px;
-  padding:2px 6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+
+/* ---------- Calendar entries ----------
+   A range used to tint its whole day cell. That could not survive two
+   ranges overlapping: the fills stacked into a muddy third colour and you
+   could not tell which range was which, or even how many there were. Each
+   range is now one labelled bar in its own colour, so overlaps read as
+   parallel named lines.
+
+   Palette taken from the club logo's own bar-chart mark (blue, teal,
+   muted red, violet) plus the periwinkle of its arcs and the navy of the
+   wordmark, each darkened enough to carry white text at .7rem (all
+   measured >=4.5:1). These six are identity colours — they carry no status
+   meaning and must not be reused for gain/warn anywhere else. SPAN_COLORS
+   in kalendar.js must equal the number of --c* rules here. */
+.cal-ev{
+  position:relative;z-index:1;align-self:center;
+  height:19px;line-height:19px;padding:0 7px;
+  font-size:.7rem;font-weight:500;color:#fff;background:var(--span-c);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  text-decoration:none;display:block;cursor:pointer;
 }
-.cal-day__dot--task{background:var(--accent);color:#fff}
-.cal-day__dot--project{background:var(--gain-soft);color:var(--gain)}
-.cal-day__dot--payment{background:#fff3d6;color:#8a5a00}
-.cal-day__dot--event{background:#fdecea;color:#b3261e}
-.cal-day__more{font-size:.66rem;color:var(--ink-soft)}
+.cal-ev:hover{filter:brightness(1.08)}
+/* Only the real ends are capped and inset. A segment continuing past the
+   week edge stays flush so it reads as the same bar resuming on the next
+   row rather than as a new one. */
+.cal-ev.is-start{border-top-left-radius:4px;border-bottom-left-radius:4px;margin-left:3px}
+.cal-ev.is-end{border-top-right-radius:4px;border-bottom-right-radius:4px;margin-right:3px}
+.cal-ev--c0{--span-c:#1a6fb8}
+.cal-ev--c1{--span-c:#2f7d72}
+.cal-ev--c2{--span-c:#b0475a}
+.cal-ev--c3{--span-c:#6f5f9c}
+.cal-ev--c4{--span-c:#4a6d92}
+.cal-ev--c5{--span-c:#0c3350}
+/* Single-day items keep type colours — a task, a payment and a one-day
+   deadline are different kinds of thing, unlike ranges which need to be
+   told apart from each other. */
+.cal-ev--task{--span-c:#1a6fb8}
+.cal-ev--project{--span-c:#0f7a52}
+.cal-ev--payment{--span-c:#7a4f00}
+.cal-ev--event{--span-c:#a5231c}
+
+.cal-when{font-size:.78rem;color:var(--ink-soft);white-space:nowrap;flex:none}
+.cal-when.is-running{color:var(--gain);font-weight:600}
 
 /* ---------- Mobile sidebar collapse ---------- */
 @media (max-width:820px){
