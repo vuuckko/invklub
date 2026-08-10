@@ -188,6 +188,21 @@ create table club_notes (
   updated_at timestamptz not null default now()
 );
 
+-- Rokovi van projekta — samostalni datumi na kalendaru (npr. dan
+-- intervjua, zatvaranje prijava) koji nisu vezani ni za jedan projekat.
+-- Početak i kraj (isti datum u oba polja za jednodnevni rok) — period
+-- između se oboji na kalendaru, isto kao kod projekata.
+create table calendar_events (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  start_date date not null,
+  end_date date not null,
+  notes text,
+  created_by uuid references profiles (id) on delete set null,
+  created_at timestamptz not null default now(),
+  constraint calendar_events_end_after_start check (end_date >= start_date)
+);
+
 -- ---------------------------------------------------------------------------
 -- Auto-create profile on signup (admin creates the auth user manually with
 -- email+password in Supabase Dashboard; this fires right after that).
@@ -389,6 +404,7 @@ alter table transactions enable row level security;
 alter table club_settings enable row level security;
 alter table documents enable row level security;
 alter table club_notes enable row level security;
+alter table calendar_events enable row level security;
 
 -- sectors: everyone reads, only admin writes
 create policy "sectors_select_all" on sectors
@@ -498,6 +514,13 @@ create policy "club_notes_update_all" on club_notes
   for update using (auth.role() = 'authenticated');
 
 alter publication supabase_realtime add table club_notes;
+
+-- calendar_events: everyone reads (so the deadline shows up on everyone's
+-- calendar), only admin adds/edits/removes — same shape as projects.
+create policy "calendar_events_select_all" on calendar_events
+  for select using (auth.role() = 'authenticated');
+create policy "calendar_events_admin_write" on calendar_events
+  for all using (public.is_admin()) with check (public.is_admin());
 
 -- ---------------------------------------------------------------------------
 -- Storage — one private bucket for club documents. Files are only ever

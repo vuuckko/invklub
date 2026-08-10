@@ -18,9 +18,12 @@
   <aside class="sidebar" id="sidebar-root"></aside>
 
   <main class="portal-main">
-    <div class="portal-head">
-      <h1 class="h-lead">Kalendar</h1>
-      <p class="lead-text">Rokovi projekata i zadataka.</p>
+    <div class="portal-head-row">
+      <div class="portal-head">
+        <h1 class="h-lead">Kalendar</h1>
+        <p class="lead-text">Rokovi projekata, zadataka i drugi važni datumi.</p>
+      </div>
+      <button type="button" class="btn btn--primary" id="addEventBtn" hidden>+ Dodaj rok</button>
     </div>
 
     <div class="dash-grid">
@@ -42,6 +45,10 @@
       </div>
     </div>
   </main>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop" hidden>
+  <div class="modal" id="modalBody"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>

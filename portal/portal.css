@@ -399,6 +399,11 @@ a.ledger-row:hover .ledger-row__name{color:var(--accent)}
 .row-item:last-child{border-bottom:none}
 .row-item__title{font-weight:600;color:var(--ink);font-size:.92rem}
 .row-item__meta{font-size:.78rem;color:var(--ink-soft);font-family:var(--sans)}
+.row-item__delete{
+  background:none;border:0;color:var(--ink-soft);opacity:.6;cursor:pointer;
+  font-size:1.1rem;line-height:1;padding:2px;flex:none;
+}
+.row-item__delete:hover{opacity:1;color:#b3261e}
 
 /* ---------- Tables ---------- */
 .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-md);background:#fff}
@@ -684,6 +689,8 @@ table.dtable td.num{text-align:right}
 .cal-day.is-outside{background:var(--paper);opacity:.5}
 .cal-day.is-span{background:var(--gain-soft)}
 .cal-day.is-span.is-today{background:var(--gain-soft)}
+.cal-day.is-event-span{background:#fdecea}
+.cal-day.is-event-span.is-today{background:#fdecea}
 .cal-day.is-today .cal-day__num{
   background:var(--accent);color:#fff;border-radius:50%;
   width:24px;height:24px;display:flex;align-items:center;justify-content:center;
@@ -696,6 +703,7 @@ table.dtable td.num{text-align:right}
 .cal-day__dot--task{background:var(--accent);color:#fff}
 .cal-day__dot--project{background:var(--gain-soft);color:var(--gain)}
 .cal-day__dot--payment{background:#fff3d6;color:#8a5a00}
+.cal-day__dot--event{background:#fdecea;color:#b3261e}
 .cal-day__more{font-size:.66rem;color:var(--ink-soft)}
 
 /* ---------- Mobile sidebar collapse ---------- */
