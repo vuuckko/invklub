@@ -504,57 +504,51 @@ table.dtable td.num{text-align:right}
 .kv-row dt{margin:0;color:var(--ink-soft)}
 .kv-row dd{margin:0;color:var(--ink);font-weight:600;text-align:right}
 
-/* ---------- Member cards (Baza članova) — replaces the old full-width
-   table. A wide table forces every row into one shape regardless of how
-   much a member actually has filled in (sector/position/status), which is
-   why it read as a dense, hard-to-scan strip. Cards let each member take
-   only the space their own data needs and scan left-to-right, top-to-
-   bottom like a contact sheet instead of a spreadsheet.
-
-   Once cards were grouped under sector headings the card itself got much
-   quieter: sector, "Aktivan" and the ellipsized email all came off it (see
-   memberCardHtml() for why each went). What's left is a monogram, a name,
-   and only genuinely exceptional marks — so the grid tightened (196px
-   columns, 10px gap) and now reads as a directory rather than a wall of
-   equally-weighted boxes. ---------- */
-/* align-items:start, not the grid default stretch — stretch forced a
-   name-only card to match the tallest card in its row (measured: 48px of
-   content inside a 129px box), which is exactly the "every row one shape"
-   problem the cards replaced the table to avoid. */
-.member-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:10px;align-items:start}
-.member-card{
-  background:#fff;border:1px solid var(--line);border-radius:var(--r-md);
-  padding:13px 14px;cursor:pointer;transition:border-color .15s ease;
-  display:flex;align-items:flex-start;gap:11px;
+/* ---------- Member rows (Baza članova) — replaces the old full-width
+   table, then a rounded-card grid, now this. The table forced every row
+   into one shape regardless of how much a member had filled in, which
+   read as a dense strip; the card grid that followed fixed that but
+   brought its own generic-SaaS tell — rounded box + pastel avatar circle +
+   pill badges + heavy padding is the default "user card" in every UI kit
+   (Notion, Linear, shadcn, any Figma community file), independent of the
+   specific colours used. Once the cards were grouped under sector
+   headings there was barely anything left on each one (monogram, name,
+   maybe a position and a mark) — too little content to justify a boxed,
+   padded, rounded container at all. A plain hairline-divided row carries
+   the same information at higher density, closer to how Notion/Airtable
+   actually lay out a list of people than a wall of padded cards is, and
+   it fits this app's own document vocabulary (hairline rules, tabular
+   figures) instead of borrowing a chat-app avatar pattern. ---------- */
+.member-rows{display:flex;flex-direction:column}
+/* border-radius:0 deliberately — every other surface on this page is a
+   hairline rule, and a rounded hover highlight was the last leftover of
+   the card treatment this replaced. */
+.member-row{
+  display:flex;align-items:baseline;gap:12px;
+  padding:10px 4px;border-top:1px solid var(--line);
+  cursor:pointer;border-radius:0;
 }
-.member-card:hover{border-color:var(--accent)}
-/* Mist/navy monogram, not a filled --accent disc: eleven saturated blue
-   circles were the loudest thing on a page whose whole direction is ink on
-   paper with colour reserved for meaning (gain/warn/accent). Same fill as
-   .badge--light, so the card's two chip-like elements agree. */
-.member-card__avatar{
-  width:34px;height:34px;border-radius:50%;background:var(--mist);color:var(--navy-800);
-  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex:none;
+.member-row:first-child{border-top:none}
+.member-row:hover{background:var(--paper)}
+/* No ellipsis, no max-width — truncating a person's name is the one place
+   in this app where the cut is never acceptable. */
+.member-row__name{font-weight:700;color:var(--ink);font-size:.94rem;flex:none}
+.member-row__position{
+  color:var(--ink-soft);font-size:.83rem;flex:1;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
-.member-card__body{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0}
-/* Wraps rather than ellipsizing — truncating a person's name is the one
-   place in this app where the cut is never acceptable. */
-.member-card__name{
-  font-weight:700;color:var(--ink);font-size:.9rem;line-height:1.3;
-  min-width:0;overflow-wrap:break-word;
-}
-.member-card__position{margin:0;font-size:.78rem;color:var(--ink-soft)}
-.member-card__marks{display:flex;flex-wrap:wrap;gap:5px;margin-top:3px}
+.member-row__marks{display:flex;align-items:center;gap:16px;flex:none;margin-left:auto;padding-left:12px}
 
 /* Members grouped by sector (directory reads by section instead of a
-   shuffled contact sheet) — a heading + hairline rule, not a boxed .panel,
-   since the cards below already carry their own border and a panel-in-
-   panel would double up the container. The sector icon sits here, once per
-   section, instead of being repeated on every card in it. */
-.member-section + .member-section{margin-top:34px}
+   shuffled list) — a heading + hairline rule, not a boxed .panel: rows
+   already carry their own hairline dividers, so wrapping the whole group
+   in another bordered, rounded box would just nest one rule language
+   inside another for no reason. The sector icon sits here, once per
+   section, instead of being repeated on every row in it. */
+.member-section + .member-section{margin-top:30px}
 .member-section__head{
   display:flex;justify-content:space-between;align-items:center;gap:12px;
-  margin-bottom:14px;padding-bottom:9px;border-bottom:1px solid var(--line);
+  margin-bottom:2px;padding-bottom:9px;border-bottom:1px solid var(--line);
 }
 .member-section__head h3{
   margin:0;display:flex;align-items:center;gap:9px;

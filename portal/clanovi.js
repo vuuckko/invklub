@@ -31,19 +31,12 @@ let allTags = [];
   renderGrid();
 })();
 
-function initials(name) {
-  if (!name) return "?";
-  return name
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((p) => p[0]?.toUpperCase())
-    .join("");
-}
-
 // A wide table forced every member into one row shape regardless of how
 // much they'd actually filled in, which is why it read as a dense,
-// hard-to-scan strip. Cards let each member take only the space their own
-// data needs and scan like a contact sheet instead of a spreadsheet.
+// hard-to-scan strip. Grouped hairline rows (see memberRowHtml below) let
+// each member take only the line they need without boxing every one of
+// them in a padded, rounded card — see the comment on .member-rows in
+// portal.css for why the card treatment itself got dropped.
 function renderGrid() {
   const searchInput = document.getElementById("searchInput");
   const sectorFilter = document.getElementById("sectorFilter");
@@ -89,12 +82,12 @@ function renderGrid() {
 
   grid.innerHTML = groups.map(memberSectionHtml).join("");
 
-  grid.querySelectorAll(".member-card").forEach((card) => {
-    card.addEventListener("click", () => openMemberModal(card.dataset.id));
+  grid.querySelectorAll(".member-row").forEach((row) => {
+    row.addEventListener("click", () => openMemberModal(row.dataset.id));
   });
 }
 
-// The sector icon lives here, on the heading, and NOT on each card — one
+// The sector icon lives here, on the heading, and NOT on each row — one
 // icon per sector instead of the same icon repeated on every member in it.
 // "Bez sektora" isn't a real sectors row, so it falls through to
 // SECTOR_ICON_FALLBACK's plain ring, same as the dashboard's synthetic row.
@@ -105,37 +98,43 @@ function memberSectionHtml(group) {
         <h3>${sectorIcon(group.name)}<span>${escapeHtml(group.name)}</span></h3>
         <span class="member-section__count">${group.members.length}</span>
       </div>
-      <div class="member-grid">
-        ${group.members.map(memberCardHtml).join("")}
+      <div class="member-rows">
+        ${group.members.map(memberRowHtml).join("")}
       </div>
     </div>
   `;
 }
 
-// Deliberately omits three things the pre-grouping card carried:
-//   - the sector name: the section heading above states it once, so
-//     printing it again on all 11 cards was pure repetition;
+// No avatar and no leading initial — a circle-with-initials is the generic
+// per-user-avatar signature of every UI kit (Notion/Linear/shadcn/Figma
+// community files) regardless of how it's coloured, and a bare drop-letter
+// standing in for it read as decoration rather than information. The name
+// itself starts the row.
+//
+// Also omits three things the pre-grouping card carried:
+//   - the sector name: the section heading above states it once;
 //   - "Aktivan": when nearly every member is active the label is noise,
-//     so only the exception (Alumni) is marked — unmarked means active,
-//     and the status filter still queries it explicitly;
-//   - the email: it only ever rendered ellipsized ("nikolaa@gmail…"),
-//     which looks like data without being usable. It's in the modal, whole.
-function memberCardHtml(m) {
+//     so only the exception (Alumni) is marked — unmarked means active;
+//   - the email: it only ever rendered ellipsized, which looked like data
+//     without being usable. It's in the modal, whole.
+// Marks reuse .status-dot (a coloured dot + plain text) instead of .badge
+// (a filled pill) — this app already has a non-pill way to tag role/
+// status, so role/alumni don't need the pill treatment reintroduced here.
+function memberRowHtml(m) {
   const marks = [
-    m.role === "admin" ? `<span class="badge badge--light">${roleLabelFor(m)}</span>` : "",
+    m.role === "admin"
+      ? `<span class="status-dot status-dot--accent">${roleLabelFor(m)}</span>`
+      : "",
     m.status !== "active"
-      ? `<span class="badge badge--neutral">${STATUS_LABELS[m.status] ?? m.status}</span>`
+      ? `<span class="status-dot status-dot--neutral">${STATUS_LABELS[m.status] ?? m.status}</span>`
       : "",
   ].join("");
 
   return `
-    <div class="member-card" data-id="${m.id}">
-      <span class="member-card__avatar">${escapeHtml(initials(m.full_name))}</span>
-      <div class="member-card__body">
-        <p class="member-card__name">${escapeHtml(m.full_name || "(bez imena)")}</p>
-        ${m.position ? `<p class="member-card__position">${escapeHtml(m.position)}</p>` : ""}
-        ${marks ? `<div class="member-card__marks">${marks}</div>` : ""}
-      </div>
+    <div class="member-row" data-id="${m.id}">
+      <span class="member-row__name">${escapeHtml(m.full_name || "(bez imena)")}</span>
+      ${m.position ? `<span class="member-row__position">${escapeHtml(m.position)}</span>` : ""}
+      ${marks ? `<span class="member-row__marks">${marks}</span>` : ""}
     </div>
   `;
 }
